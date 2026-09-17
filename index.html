@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Flower Intro</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="main.css">
+</head>
+<body>
+
+<div class="love-intro">
+
+    <canvas id="loveCanvas"></canvas>
+
+    <div class="love-envelope-wrap" id="envelopeWrap">
+
+        <img
+            class="love-envelope love-envelope-opened"
+            id="envOpened"
+            src="image/envelope-opened.webp"
+            alt=""
+            draggable="false"
+        >
+
+        <img
+            class="love-envelope love-envelope-closed"
+            id="envClosed"
+            src="image/envelope-closed.webp"
+            alt=""
+            draggable="false"
+        >
+
+        <p class="love-tap-hint" id="tapHint">
+            Nhấn vào Thư đi nguoi depp
+        </p>
+
+    </div>
+
+    <p class="love-tap-hint love-reveal-hint" id="revealHint">
+        Nhấn vào màn hình nào 
+    </p>
+
+    <section class="letter-overlay" id="letterOverlay" aria-hidden="true">
+        <article class="letter-card">
+            <button class="letter-close" id="letterClose" type="button" aria-label="Đóng tâm thư">×</button>
+            <header class="letter-card__header">
+                <p class="letter-kicker">Gửi người mình thương</p>
+                <h1>Tâm thư đêm Trung Thu</h1>
+            </header>
+
+            <div class="letter-card__body">
+               <p class="letter-message">Trung Thu này, anh không mong gì nhiều, chỉ mong em luôn vui, luôn bình yên và nụ cười ấy lúc nào cũng ở trên môi. Mong rằng dưới ánh trăng này, chúng ta sẽ luôn có nhau, hôm nay, ngày mai và thật nhiều mùa Trung Thu về sau. 🌙❤️</p>
+            </div>
+
+            <footer class="letter-card__footer">
+                <p class="letter-signature">Thương bạn thật nhiều<br><span>♡</span></p>
+                <a class="letter-next" href="longden.html">Bấm vào đây để mở tiếp <span aria-hidden="true">→</span></a>
+            </footer>
+        </article>
+    </section>
+
+</div>
+
+<div id="content">
+    <!-- Nội dung thật của bạn -->
+</div>
+
+<script src="main.js"></script>
+
+</body>
+</html>
