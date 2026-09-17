@@ -13,7 +13,7 @@ const letterMessages = document.querySelectorAll(".letter-message");
 
 const isMobile = window.matchMedia("(max-width: 768px)").matches;
 const dpr = Math.min(window.devicePixelRatio || 1, 1.75);
-const MAX_FLOWERS = isMobile ? 360 : 600;
+const MAX_FLOWERS = isMobile ? 800 : 1200;
 
 let W, H, CX, CY;
 
@@ -106,28 +106,24 @@ envWrap.addEventListener("click", () => {
 });
 
 function createFlower(index, leftSide) {
-  const ring = Math.floor(index / 42);
-  const pos = index % 40;
-  const side = leftSide ? 1 : -1;
+  const angle = Math.random() * Math.PI * 2;
+  const spread = Math.max(W, H) * 0.82;
+  const radius = Math.max(12, spread * Math.pow(Math.random(), 1.9));
 
-  const angle =
-    (leftSide ? -Math.PI / 2 : Math.PI / 2) +
-    side * (pos / 40) * Math.PI * 2 +
-    (Math.random() - 0.5) * 0.08;
-
-  const radius =
-    Math.max(W, H) * (0.05 + ring * 0.09 + Math.random() * 0.1);
+  const orbitX = Math.cos(angle) * radius;
+  const orbitY = Math.sin(angle) * radius * 0.9;
+  const centerFill = (Math.random() - 0.5) * 18;
 
   flowers.push({
-    tx: Math.cos(angle) * radius,
-    ty: Math.sin(angle) * radius,
+    tx: orbitX + centerFill,
+    ty: orbitY + centerFill * 0.4,
     img: mooncakeImages[Math.floor(Math.random() * mooncakeImages.length)],
     start: performance.now(),
-    dur: 1050 + Math.random() * 500,
+    dur: 700 + Math.random() * 420,
     rot: (Math.random() - 0.5) * 70,
     spin: (Math.random() - 0.5) * 90,
-    size: 0.65 + Math.random() * 0.45,
-    drop: H + 300 + Math.random() * 300,
+    size: 0.9 + Math.random() * 0.7,
+    drop: H + 220 + Math.random() * 220,
   });
 }
 
@@ -141,7 +137,7 @@ function startBurst() {
 
   let left = 0;
   let right = 0;
-  const burstStep = isMobile ? 2 : 4;
+  const burstStep = isMobile ? 10 : 14;
 
   function spawnBurstFrame() {
     if (state !== "burst") return;
@@ -212,7 +208,7 @@ function render() {
   ctx.clearRect(0, 0, W, H);
 
   const now = performance.now();
-  const imageSize = isMobile ? 120 : 160;
+  const imageSize = isMobile ? 150 : 180;
 
   for (let i = 0; i < flowers.length; i++) {
     const f = flowers[i];
