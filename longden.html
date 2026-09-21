@@ -1,6 +1,5 @@
-<!doctype html>
 <html lang="vi">
-
+ 
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
@@ -9,13 +8,13 @@
     :root {
       --corner-image-width: min(34vw, 480px);
     }
-
+ 
     html,
     body {
       height: 100%;
       margin: 0
     }
-
+ 
     body {
       overflow: hidden;
       background: radial-gradient(ellipse at top, #071428 0%, #02040a 60%, #000 100%);
@@ -25,14 +24,14 @@
       align-items: center;
       justify-content: center;
     }
-
+ 
     canvas {
       display: block;
       position: fixed;
       inset: 0;
       z-index: 0
     }
-
+ 
     .corner-lantern {
       display: none !important;
       position: fixed;
@@ -46,17 +45,17 @@
       filter: drop-shadow(-12px -8px 18px rgba(255, 155, 71, 0.28));
       pointer-events: none;
     }
-
+ 
     .corner-lantern::after {
       content: none
     }
-
+ 
     @media (max-width: 600px) {
       :root {
         --corner-image-width: min(72vw, 360px)
       }
     }
-
+ 
     .credit {
       position: fixed;
       right: 12px;
@@ -65,7 +64,7 @@
       font-size: 12px;
       opacity: 0.8;
     }
-
+ 
     /* Popup ảnh khi bấm vào lồng đèn */
     .photo-popup {
       position: fixed;
@@ -80,12 +79,12 @@
       visibility: hidden;
       transition: opacity .35s ease, visibility .35s ease;
     }
-
+ 
     .photo-popup.show {
       opacity: 1;
       visibility: visible;
     }
-
+ 
     .photo-card {
       position: relative;
       width: min(76vw, 430px);
@@ -98,11 +97,11 @@
       transform: scale(.65) translateY(35px) rotate(-2deg);
       transition: transform .45s cubic-bezier(.2, .8, .2, 1);
     }
-
+ 
     .photo-popup.show .photo-card {
       transform: scale(1) translateY(0) rotate(0deg);
     }
-
+ 
     .photo-card img {
       display: block;
       width: 100%;
@@ -111,7 +110,7 @@
       border-radius: 17px;
       user-select: none;
     }
-
+ 
     .photo-close {
       position: absolute;
       top: -14px;
@@ -126,7 +125,7 @@
       cursor: pointer;
       box-shadow: 0 5px 18px rgba(0, 0, 0, .35);
     }
-
+ 
     .photo-hint {
       position: fixed;
       left: 50%;
@@ -142,7 +141,7 @@
       pointer-events: none;
       backdrop-filter: blur(5px);
     }
-
+ 
     .heart-message {
       position: fixed;
       left: 50%;
@@ -158,25 +157,25 @@
       pointer-events: none;
       transition: opacity 1.2s ease, transform 1.2s cubic-bezier(.2, .8, .2, 1);
     }
-
+ 
     .heart-message.show {
       opacity: 1;
       visibility: visible;
       transform: translate(-50%, -50%) scale(1);
     }
-
+ 
     .heart-message__line {
       display: block;
       font: 700 clamp(20px, 3vw, 34px)/1.35 Georgia, serif;
     }
-
+ 
     .heart-message__name {
       display: block;
       margin-top: 14px;
       color: #ffb6c1;
       font: 700 clamp(28px, 5vw, 54px)/1.1 'Dancing Script', cursive;
     }
-
+ 
     .heartvip-stem {
       position: fixed;
       left: 50%;
@@ -193,7 +192,7 @@
       transform-origin: top center;
       transition: opacity .8s ease, transform .8s cubic-bezier(.2, .8, .2, 1), visibility .8s;
     }
-
+ 
     .heartvip-stem::before {
       content: "";
       position: absolute;
@@ -206,13 +205,13 @@
       background: rgba(255, 234, 244, .95);
       box-shadow: 0 0 16px rgba(255, 146, 176, .8);
     }
-
+ 
     .heartvip-stem.show {
       opacity: 1;
       visibility: visible;
       transform: translateX(-50%) scaleY(1);
     }
-
+ 
     .heartvip-trigger {
       position: fixed;
       left: 50%;
@@ -236,14 +235,14 @@
       transition: opacity .8s ease, transform .8s cubic-bezier(.2, .8, .2, 1), visibility .8s;
       animation: heartvip-pulse 1.5s ease-in-out infinite;
     }
-
+ 
     .heartvip-trigger.show {
       opacity: 1;
       visibility: visible;
       pointer-events: auto;
       transform: translate(-50%, -50%) scale(1);
     }
-
+ 
     .heartvip-hint {
       position: fixed;
       left: 50%;
@@ -263,13 +262,13 @@
       pointer-events: none;
       transition: opacity .6s ease, visibility .6s ease, transform .6s ease;
     }
-
+ 
     .heartvip-trigger.show + .heartvip-hint {
       opacity: 1;
       visibility: visible;
       transform: translateX(-50%) scale(1);
     }
-
+ 
     .heartvip-trigger::before {
       content: "";
       position: absolute;
@@ -279,18 +278,18 @@
       opacity: 0;
       animation: heartvip-ring 2.4s ease-out infinite;
     }
-
+ 
     .heartvip-trigger:hover,
     .heartvip-trigger:focus-visible {
       transform: translate(-50%, -50%) scale(1.12);
       outline: 2px solid rgba(255, 238, 246, .9);
       outline-offset: 4px;
     }
-
+ 
     @keyframes heartvip-pulse {
       50% { box-shadow: 0 0 34px rgba(255, 104, 157, 1), 0 0 86px rgba(255, 104, 157, .52); }
     }
-
+ 
     @keyframes heartvip-ring {
       0% {
         opacity: 0.9;
@@ -307,15 +306,15 @@
     }
   </style>
 </head>
-
+ 
 <body>
   <audio id="bgMusic" loop preload="auto">
     <source src="nhac/nhactrungthu.mp3" type="audio/mpeg">
     Trình duyệt của bạn không hỗ trợ audio.
   </audio>
-
+ 
   <canvas id="c"></canvas>
-
+ 
   <div class="photo-hint">Nhấn vào các lồng đèn sẽ có bất ngờ</div>
   <div class="photo-popup" id="photoPopup" aria-hidden="true">
     <div class="photo-card">
@@ -326,23 +325,23 @@
   <div class="heartvip-stem" id="heartVipStem" aria-hidden="true"></div>
   <button class="heartvip-trigger" id="heartVipTrigger" type="button" aria-label="Mở trái tim yêu thương">❤</button>
   <div class="heartvip-hint" aria-live="polite">Bấm vào trái tim nhé 💗</div>
-
+ 
   <script>
     const canvas = document.getElementById('c');
     const ctx = canvas.getContext('2d');
     let W = canvas.width = innerWidth;
     let H = canvas.height = innerHeight;
-
+ 
     window.addEventListener('resize', () => {
       W = canvas.width = innerWidth;
       H = canvas.height = innerHeight;
     });
-
-
+ 
+ 
     function rand(a, b) { return a + Math.random() * (b - a) }
     function lerp(a, b, t) { return a + (b - a) * t }
-
-
+ 
+ 
     const focalLength = 1000;
     const zMin = 0.1;
     const zMax = 2.0;
@@ -355,12 +354,12 @@
     const heartVipTrigger = document.getElementById('heartVipTrigger');
     const heartVipStem = document.getElementById('heartVipStem');
     const heartParticles = [];
-
+ 
     function revealHeartActivationSequence() {
       if (heartVipTrigger.classList.contains('show')) return;
       heartVipStem.classList.remove('show');
       heartVipTrigger.classList.remove('show');
-
+ 
       setTimeout(() => {
         heartVipStem.classList.add('show');
         setTimeout(() => {
@@ -368,7 +367,7 @@
         }, 700);
       }, 600);
     }
-
+ 
     function spawnHeartParticles() {
       const cx = W * 0.5;
       const cy = H * 0.46;
@@ -385,20 +384,20 @@
         });
       }
     }
-
+ 
     function drawHeartAura() {
       const cx = W * 0.5;
       const cy = H * 0.46;
       const radius = Math.min(W, H) * 0.23;
       const t = performance.now() * 0.0015;
-
+ 
       const glow = ctx.createRadialGradient(cx, cy, radius * 0.12, cx, cy, radius * 1.6);
       glow.addColorStop(0, 'rgba(255, 182, 193, 0.35)');
       glow.addColorStop(0.4, 'rgba(255, 153, 189, 0.18)');
       glow.addColorStop(1, 'rgba(255, 153, 189, 0)');
       ctx.fillStyle = glow;
       ctx.fillRect(cx - radius * 1.8, cy - radius * 1.8, radius * 3.6, radius * 3.6);
-
+ 
       ctx.beginPath();
       ctx.moveTo(cx, cy + radius * 0.6);
       for (let angle = 0; angle <= Math.PI * 2 + 0.1; angle += 0.08) {
@@ -413,7 +412,7 @@
       ctx.shadowBlur = 22;
       ctx.stroke();
       ctx.shadowBlur = 0;
-
+ 
       for (let i = 0; i < heartParticles.length; i++) {
         const p = heartParticles[i];
         p.x += p.vx;
@@ -427,7 +426,7 @@
           p.vx = (Math.random() - 0.5) * 1.4;
           p.vy = -Math.random() * 1.8 - 0.5;
         }
-
+ 
         ctx.beginPath();
         ctx.fillStyle = p.color.replace(')', `, ${Math.max(0.2, p.life)})`).replace('rgb', 'rgba');
         if (p.color.startsWith('#')) {
@@ -441,32 +440,15 @@
         ctx.fill();
       }
     }
-
-    function buildHeartTargets() {
-      const targets = [];
-      const scale = Math.min(W, H) * 0.018;
-      const centerX = W / 2;
-      const centerY = H * 0.45;
-
-      for (let i = 0; i < lanterns.length; i++) {
-        const t = (i / lanterns.length) * Math.PI * 2;
-        const outline = i < lanterns.length * .62;
-        const innerScale = outline ? 1 : .25 + ((i * 37) % 100) / 100 * .55;
-        const x = 16 * Math.sin(t) ** 3 * scale * innerScale;
-        const y = -(13 * Math.cos(t) - 5 * Math.cos(2 * t) - 2 * Math.cos(3 * t) - Math.cos(4 * t)) * scale * innerScale;
-        targets.push({ x: centerX + x, y: centerY + y });
-      }
-      return targets;
-    }
-
+ 
     function beginHeartFormation() {
       if (skyPhase !== 'rain') return;
       skyPhase = 'slowing';
       motionScale = .16;
       photoPopup.classList.remove('show');
       photoPopup.setAttribute('aria-hidden', 'true');
-      audio.volume = .35;
-
+      if (audio) audio.volume = .35;
+ 
       setTimeout(() => {
         skyPhase = 'pause';
         motionScale = 0;
@@ -498,11 +480,11 @@
         this.x = rand(-0.1 * W, 1.1 * W);
         this.y = top ? rand(-H * 0.5, -10) : rand(-H * 0.2, -10);
         this.z = rand(zMin, zMax);
-        this.vx = rand(-0.3, 0.3);
-        this.vy = rand(0.07, 0.11); // tốc độ rơi chậm và đồng đều hơn
+        this.vx = rand(-0.22, 0.22);
+        this.vy = rand(0.18, 0.26); // rơi nhanh hơn và đồng đều hơn
         this.vz = rand(-0.01, 0.01);
         this.phase = rand(0, Math.PI * 2);
-        this.sway = rand(10, 40);
+        this.sway = rand(12, 34);
         this.rotation = rand(-0.08, 0.08);
         this.color = this.pickColor();
         this.glow = rand(0.6, 1.2);
@@ -538,16 +520,16 @@
           return;
         }
         this.age += dt;
-        this.vy += 0.00008 * (this.size / 24); // gia tốc rất nhẹ
-        this.x += (this.vx + Math.sin(this.age * 0.02 + this.phase) * (this.sway * this.depth * 0.003)) * motionScale;
-        this.y += this.vy * (1 / this.depth) * motionScale;
+        this.vy += 0.00018 * (this.size / 24); // gia tốc nhẹ và đều hơn
+        this.x += (this.vx + Math.sin(this.age * 0.018 + this.phase) * (this.sway * this.depth * 0.0022)) * motionScale;
+        this.y += this.vy * (1.05 + this.depth * 0.12) * motionScale;
         this.z += this.vz;
-
+ 
         if (this.z < zMin) this.z = zMin;
         if (this.z > zMax) this.z = zMax;
-        this.rotation += Math.sin(this.age * 0.005 + this.phase) * 0.0006;
-        this.alpha = 0.7 + 0.25 * Math.sin(this.age * 0.02 + this.phase * 3) * this.twinkle;
-
+        this.rotation += Math.sin(this.age * 0.005 + this.phase) * 0.00045;
+        this.alpha = 0.72 + 0.22 * Math.sin(this.age * 0.02 + this.phase * 3) * this.twinkle;
+ 
         if (this.y - this.size * (focalLength / (focalLength + this.z)) > H + 80) {
           this.reset(false);
           this.x = rand(-0.1 * W, 1.1 * W);
@@ -560,12 +542,12 @@
         const px = this.x * scale + W / 2 * (1 - scale); // Perspective projection for x
         const py = this.y * scale + H / 2 * (1 - scale); // Perspective projection for y
         const scaledSize = this.size * scale;
-
+ 
         // Lưu vị trí thật trên màn hình để có thể click trúng lồng đèn
         this.screenX = px;
         this.screenY = py;
         this.screenSize = scaledSize;
-
+ 
         ctx.save();
         ctx.translate(px, py);
         ctx.rotate(this.rotation);
@@ -614,8 +596,8 @@
         ctx.restore();
       }
     }
-
-
+ 
+ 
     function roundRectPath(ctx, x, y, w, h, r) {
       ctx.moveTo(x + r, y);
       ctx.arcTo(x + w, y, x + w, y + h, r);
@@ -623,7 +605,7 @@
       ctx.arcTo(x, y + h, x, y, r);
       ctx.arcTo(x, y, x + w, y, r);
     }
-
+ 
     function hexToRgba(hex, alpha) {
       const h = hex.replace('#', '');
       const bigint = parseInt(h, 16);
@@ -632,15 +614,15 @@
       const b = bigint & 255;
       return `rgba(${r}, ${g}, ${b}, ${alpha})`;
     }
-
-
+ 
+ 
     const isMobile = window.matchMedia('(max-width: 768px)').matches;
     let lanterns = [];
     let LAST = performance.now();
     let glowFactor = 0.6;
     const desiredCount = isMobile ? 90 : 120;
     const heartParticleCount = isMobile ? 16 : 26;
-
+ 
     function spawn(n) {
       lanterns = [];
       for (let i = 0; i < n; i++) {
@@ -650,27 +632,20 @@
       }
     }
     spawn(desiredCount);
-
+ 
     // ===== HEART FORMATION =====
     // Parametric heart curve
     function heartCurveX(t) { return 16 * Math.pow(Math.sin(t), 3); }
     function heartCurveY(t) { return -(13 * Math.cos(t) - 5 * Math.cos(2 * t) - 2 * Math.cos(3 * t) - Math.cos(4 * t)); }
-
-    let heartTargets = [];   // {x, y} screen positions for each lantern
-    let heartBlend = 0;      // 0 = rain mode, 1 = heart mode
-    let heartStartTime = -1; // when transition begins
-    const heartDelay = 5000;          // ms before heart starts forming
-    const heartTransitionMs = 4000;   // ms for full transition
-    const heartHoldMs = 8000;         // ms to hold heart shape
-    const heartDissolveMs = 3000;     // ms to dissolve back to rain
-    let heartCycleStart = performance.now();
-
+ 
+    let heartTargets = [];
+ 
     function buildHeartTargets() {
       heartTargets = [];
       const heartScale = Math.min(W, H) * 0.019;
       const cx = W * 0.5;
       const cy = H * 0.46;
-
+ 
       // Create one heart target for every lantern so no lantern is left over.
       const outlineCount = Math.ceil(lanterns.length * 0.68);
       for (let i = 0; i < outlineCount; i++) {
@@ -680,7 +655,7 @@
           y: cy + heartCurveY(t) * heartScale
         });
       }
-
+ 
       // Fill the heart with the remaining targets.
       const fillRng = seededRandom(777);
       while (heartTargets.length < lanterns.length) {
@@ -691,23 +666,23 @@
           y: cy + heartCurveY(t) * heartScale * shrink
         });
       }
-
+ 
       // Assign targets to lanterns
       for (let i = 0; i < lanterns.length; i++) {
         const ti = i % heartTargets.length;
         lanterns[i].heartTX = heartTargets[ti].x;
         lanterns[i].heartTY = heartTargets[ti].y;
       }
-
+ 
       return heartTargets;
     }
     buildHeartTargets();
-
+ 
     // Rebuild on resize
     window.addEventListener('resize', () => {
       buildHeartTargets();
     });
-
+ 
     // ── Seeded pseudo-random for stable moon features ──
     function seededRandom(seed) {
       let s = seed;
@@ -716,12 +691,12 @@
         return (s - 1) / 2147483646;
       };
     }
-
+ 
     // Pre-generate moon crater & maria data once
     let moonCraterData = null;
     let moonMariaData = null;
     let lastMoonRadius = -1;
-
+ 
     function generateMoonFeatures(scaledR) {
       const rng = seededRandom(42);
       // --- Craters ---
@@ -764,7 +739,7 @@
       });
       return { craters, maria };
     }
-
+ 
     function drawMoon(ctx) {
       const moonX = W * 0.8;
       const moonY = H * 0.15;
@@ -772,7 +747,7 @@
       const moonZ = zMax;
       const scale = focalLength / (focalLength + moonZ);
       const R = moonRadius * scale;
-
+ 
       // Regenerate features only when radius changes (resize)
       if (Math.abs(R - lastMoonRadius) > 0.5) {
         const features = generateMoonFeatures(R);
@@ -780,13 +755,13 @@
         moonMariaData = features.maria;
         lastMoonRadius = R;
       }
-
+ 
       // Breathing glow animation
       const now = performance.now();
       const breathe = 1 + 0.06 * Math.sin(now * 0.0008);
-
+ 
       ctx.save();
-
+ 
       // ── Layer 1: Outermost soft haze ──
       const haze = R * 5 * breathe;
       const hazeGrd = ctx.createRadialGradient(moonX, moonY, R * 0.3, moonX, moonY, haze);
@@ -797,7 +772,7 @@
       ctx.beginPath();
       ctx.arc(moonX, moonY, haze, 0, Math.PI * 2);
       ctx.fill();
-
+ 
       // ── Layer 2: Mid glow ring ──
       const glowR = R * 3 * breathe;
       const glowGrd = ctx.createRadialGradient(moonX, moonY, R * 0.5, moonX, moonY, glowR);
@@ -809,7 +784,7 @@
       ctx.beginPath();
       ctx.arc(moonX, moonY, glowR, 0, Math.PI * 2);
       ctx.fill();
-
+ 
       // ── Layer 3: Inner corona ──
       const coronaR = R * 1.6 * breathe;
       const coronaGrd = ctx.createRadialGradient(moonX, moonY, R * 0.8, moonX, moonY, coronaR);
@@ -820,13 +795,13 @@
       ctx.beginPath();
       ctx.arc(moonX, moonY, coronaR, 0, Math.PI * 2);
       ctx.fill();
-
+ 
       // ── Moon body: layered gradient for realistic look ──
       ctx.save();
       ctx.beginPath();
       ctx.arc(moonX, moonY, R, 0, Math.PI * 2);
       ctx.clip();
-
+ 
       // Base colour
       const bodyGrd = ctx.createRadialGradient(
         moonX - R * 0.25, moonY - R * 0.25, R * 0.1,
@@ -838,7 +813,7 @@
       bodyGrd.addColorStop(1, '#d8cfb0');
       ctx.fillStyle = bodyGrd;
       ctx.fillRect(moonX - R, moonY - R, R * 2, R * 2);
-
+ 
       // Warm tint overlay
       const warmGrd = ctx.createRadialGradient(
         moonX + R * 0.3, moonY + R * 0.3, 0,
@@ -848,7 +823,7 @@
       warmGrd.addColorStop(1, 'rgba(180, 170, 140, 0.10)');
       ctx.fillStyle = warmGrd;
       ctx.fillRect(moonX - R, moonY - R, R * 2, R * 2);
-
+ 
       // ── Maria (dark lowland regions) ──
       if (moonMariaData) {
         moonMariaData.forEach(m => {
@@ -867,13 +842,13 @@
         });
         ctx.globalAlpha = 1;
       }
-
+ 
       // ── Craters ──
       if (moonCraterData) {
         moonCraterData.forEach(c => {
           const cx = moonX + c.ox;
           const cy = moonY + c.oy;
-
+ 
           // Crater shadow (deeper part)
           ctx.globalAlpha = c.alpha;
           const cGrd = ctx.createRadialGradient(
@@ -887,7 +862,7 @@
           ctx.beginPath();
           ctx.ellipse(cx, cy, c.w, c.h, c.rot, 0, Math.PI * 2);
           ctx.fill();
-
+ 
           // Crater rim (subtle highlight)
           ctx.globalAlpha = c.rimAlpha;
           ctx.strokeStyle = 'rgba(255, 252, 240, 0.4)';
@@ -898,7 +873,7 @@
         });
         ctx.globalAlpha = 1;
       }
-
+ 
       // ── Terminator shadow (edge darkening for 3D look) ──
       const termGrd = ctx.createLinearGradient(
         moonX - R, moonY, moonX + R, moonY
@@ -908,7 +883,7 @@
       termGrd.addColorStop(1, 'rgba(0, 0, 20, 0.18)');
       ctx.fillStyle = termGrd;
       ctx.fillRect(moonX - R, moonY - R, R * 2, R * 2);
-
+ 
       // Edge vignette for spherical feel
       const edgeGrd = ctx.createRadialGradient(
         moonX - R * 0.15, moonY - R * 0.15, R * 0.4,
@@ -919,9 +894,9 @@
       edgeGrd.addColorStop(1, 'rgba(0, 0, 20, 0.15)');
       ctx.fillStyle = edgeGrd;
       ctx.fillRect(moonX - R, moonY - R, R * 2, R * 2);
-
+ 
       ctx.restore(); // End clip
-
+ 
       // ── Specular highlight (top-left shine) ──
       ctx.globalAlpha = 0.35;
       const specGrd = ctx.createRadialGradient(
@@ -936,10 +911,10 @@
       ctx.arc(moonX, moonY, R, 0, Math.PI * 2);
       ctx.fill();
       ctx.globalAlpha = 1;
-
+ 
       ctx.restore();
     }
-
+ 
     function update() {
       const now = performance.now();
       const dt = (now - LAST) * 0.06;
@@ -965,40 +940,50 @@
       requestAnimationFrame(update);
     }
     requestAnimationFrame(update);
-    // ===== ẢNH KỶ NIỆM NGẪU NHIÊN =====
-    // Đặt ảnh của bạn vào thư mục "anh" cùng cấp với file HTML,
-    // rồi sửa danh sách tên file bên dưới nếu cần.
+    
+    // ===== ẢNH KỶ NIỆM TUẦN TỰ =====
     const memoryImages = [
       'anh/anh1.jpg',
       'anh/anh2.jpg',
       'anh/anh3.jpg',
       'anh/anh4.jpg',
       'anh/anh5.jpg',
-      'anh/anh6.jpg'
+      'anh/anh6.jpg',
     ];
-
+ 
     const photoPopup = document.getElementById('photoPopup');
     const memoryPhoto = document.getElementById('memoryPhoto');
     const photoClose = document.getElementById('photoClose');
-    let lastPhotoIndex = -1;
-
+    const fallbackPhoto = 'image/lantern.svg';
+    let currentPhotoIndex = 0; // Theo dõi ảnh hiện tại
+ 
+    memoryPhoto.onerror = () => {
+      if (memoryPhoto.getAttribute('data-fallback-applied') === 'true') return;
+      memoryPhoto.setAttribute('data-fallback-applied', 'true');
+      memoryPhoto.src = fallbackPhoto;
+      memoryPhoto.alt = 'Hình ảnh kỷ niệm';
+    };
+ 
+    memoryPhoto.onload = () => {
+      memoryPhoto.setAttribute('data-fallback-applied', 'false');
+    };
+ 
     function openRandomPhoto() {
       if (!memoryImages.length) return;
-      let index = Math.floor(Math.random() * memoryImages.length);
-      if (memoryImages.length > 1) {
-        while (index === lastPhotoIndex) index = Math.floor(Math.random() * memoryImages.length);
-      }
-      lastPhotoIndex = index;
-      memoryPhoto.src = memoryImages[index];
+      // Hiển thị ảnh theo thứ tự tuần tự
+      memoryPhoto.setAttribute('data-fallback-applied', 'false');
+      memoryPhoto.src = memoryImages[currentPhotoIndex];
+      // Tăng index cho lần tiếp theo, quay lại 0 khi hết ảnh
+      currentPhotoIndex = (currentPhotoIndex + 1) % memoryImages.length;
       photoPopup.classList.add('show');
       photoPopup.setAttribute('aria-hidden', 'false');
     }
-
+ 
     function closePhoto() {
       photoPopup.classList.remove('show');
       photoPopup.setAttribute('aria-hidden', 'true');
     }
-
+ 
     photoClose.addEventListener('click', (e) => {
       e.stopPropagation();
       closePhoto();
@@ -1012,7 +997,7 @@
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape') closePhoto();
     });
-
+ 
     canvas.addEventListener('click', (e) => {
       // Ưu tiên lồng đèn gần con trỏ nhất
       let hit = null;
@@ -1031,11 +1016,11 @@
       if (hit && skyPhase === 'rain' && !openedLanterns.has(hit)) {
         openedLanterns.add(hit);
         openRandomPhoto();
-        if (openedLanterns.size === 6) beginHeartFormation();
+        if (openedLanterns.size === 7) beginHeartFormation();
       }
     });
-
-
+ 
+ 
     const audio = document.getElementById('bgMusic');
     let musicPlayed = false;
     canvas.addEventListener('click', () => {
@@ -1048,9 +1033,10 @@
         });
       }
     });
-
+ 
     console.log('3D Lantern rain ready — open this file in a browser. Click vào màn hình để bật nhạc.');
   </script>
 </body>
-
+ 
 </html>
+ 
