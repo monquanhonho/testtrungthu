@@ -1,71 +1,125 @@
+<!DOCTYPE html>
 <html lang="vi">
- 
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
   <title>Cơn Mưa Hoa Đăng</title>
   <style>
     :root {
-      --corner-image-width: min(34vw, 480px);
+      --accent: #ffb86b;
+      --pink: #ff95b7;
+      --text: #fff4cf;
     }
- 
-    html,
-    body {
+
+    * { box-sizing: border-box; }
+
+    html, body {
       height: 100%;
-      margin: 0
-    }
- 
-    body {
+      margin: 0;
       overflow: hidden;
       background: radial-gradient(ellipse at top, #071428 0%, #02040a 60%, #000 100%);
       color: #fff;
-      font-family: Inter, system-ui, Arial, sans-serif;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      font-family: Inter, system-ui, -apple-system, "Segoe UI", Arial, sans-serif;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
     }
- 
+
     canvas {
       display: block;
       position: fixed;
       inset: 0;
-      z-index: 0
+      z-index: 0;
+      touch-action: none;
     }
- 
-    .corner-lantern {
-      display: none !important;
+
+    /* ===== UI Overlay ===== */
+    .ui-layer {
       position: fixed;
-      z-index: 2;
-      right: 0;
-      bottom: 0;
-      width: var(--corner-image-width);
-      max-width: 82vw;
-      height: auto;
-      transform-origin: 50% 100%;
-      filter: drop-shadow(-12px -8px 18px rgba(255, 155, 71, 0.28));
+      inset: 0;
+      z-index: 10;
       pointer-events: none;
     }
- 
-    .corner-lantern::after {
-      content: none
-    }
- 
-    @media (max-width: 600px) {
-      :root {
-        --corner-image-width: min(72vw, 360px)
-      }
-    }
- 
-    .credit {
+
+    .photo-hint {
       position: fixed;
-      right: 12px;
-      bottom: 12px;
-      color: #9fb6c9;
-      font-size: 12px;
-      opacity: 0.8;
+      left: 50%;
+      bottom: 28px;
+      transform: translateX(-50%);
+      padding: 10px 18px;
+      border-radius: 999px;
+      background: rgba(3, 10, 20, 0.55);
+      border: 1px solid rgba(255, 215, 150, 0.28);
+      color: rgba(255, 245, 223, 0.92);
+      font-size: 13.5px;
+      font-weight: 500;
+      backdrop-filter: blur(8px);
+      transition: opacity 0.4s ease, transform 0.4s ease;
+      white-space: nowrap;
     }
- 
-    /* Popup ảnh khi bấm vào lồng đèn */
+
+    .photo-hint.hide {
+      opacity: 0;
+      transform: translateX(-50%) translateY(12px);
+      pointer-events: none;
+    }
+
+    .progress-badge {
+      position: fixed;
+      top: 18px;
+      left: 50%;
+      transform: translateX(-50%);
+      padding: 7px 14px;
+      border-radius: 999px;
+      background: rgba(0, 0, 0, 0.45);
+      border: 1px solid rgba(255, 200, 140, 0.3);
+      color: #ffe8c8;
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+      backdrop-filter: blur(6px);
+      opacity: 0;
+      transition: opacity 0.4s ease;
+    }
+
+    .progress-badge.show {
+      opacity: 1;
+    }
+
+    /* Music toggle */
+    .music-btn {
+      position: fixed;
+      top: 16px;
+      right: 16px;
+      width: 44px;
+      height: 44px;
+      border: 1px solid rgba(255, 220, 180, 0.35);
+      border-radius: 50%;
+      background: rgba(10, 18, 32, 0.55);
+      color: #ffd9a8;
+      font-size: 20px;
+      cursor: pointer;
+      pointer-events: auto;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      backdrop-filter: blur(8px);
+      transition: transform 0.2s ease, background 0.2s ease;
+      z-index: 15;
+    }
+
+    .music-btn:hover,
+    .music-btn:focus-visible {
+      transform: scale(1.08);
+      background: rgba(20, 30, 50, 0.7);
+      outline: 2px solid rgba(255, 220, 180, 0.5);
+      outline-offset: 2px;
+    }
+
+    .music-btn.muted {
+      opacity: 0.65;
+    }
+
+    /* ===== Photo Popup ===== */
     .photo-popup {
       position: fixed;
       inset: 0;
@@ -73,44 +127,47 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      background: rgba(0, 0, 0, 0.48);
-      backdrop-filter: blur(6px);
+      background: rgba(0, 0, 0, 0.52);
+      backdrop-filter: blur(7px);
       opacity: 0;
       visibility: hidden;
-      transition: opacity .35s ease, visibility .35s ease;
+      transition: opacity 0.35s ease, visibility 0.35s ease;
+      pointer-events: none;
     }
- 
+
     .photo-popup.show {
       opacity: 1;
       visibility: visible;
+      pointer-events: auto;
     }
- 
+
     .photo-card {
       position: relative;
-      width: min(76vw, 430px);
+      width: min(78vw, 440px);
       max-height: 78vh;
       padding: 12px;
-      border-radius: 24px;
-      background: rgba(255, 255, 255, .10);
-      border: 1px solid rgba(255, 221, 163, .45);
-      box-shadow: 0 0 35px rgba(255, 176, 74, .28), 0 25px 70px rgba(0, 0, 0, .55);
-      transform: scale(.65) translateY(35px) rotate(-2deg);
-      transition: transform .45s cubic-bezier(.2, .8, .2, 1);
+      border-radius: 22px;
+      background: rgba(255, 255, 255, 0.09);
+      border: 1px solid rgba(255, 221, 163, 0.45);
+      box-shadow: 0 0 35px rgba(255, 176, 74, 0.28), 0 25px 70px rgba(0, 0, 0, 0.55);
+      transform: scale(0.72) translateY(30px);
+      transition: transform 0.45s cubic-bezier(0.2, 0.8, 0.2, 1);
     }
- 
+
     .photo-popup.show .photo-card {
-      transform: scale(1) translateY(0) rotate(0deg);
+      transform: scale(1) translateY(0);
     }
- 
+
     .photo-card img {
       display: block;
       width: 100%;
       max-height: calc(78vh - 24px);
       object-fit: contain;
-      border-radius: 17px;
+      border-radius: 16px;
       user-select: none;
+      -webkit-user-drag: none;
     }
- 
+
     .photo-close {
       position: absolute;
       top: -14px;
@@ -121,61 +178,18 @@
       border-radius: 50%;
       background: #fff7e7;
       color: #6b3d17;
-      font-size: 23px;
+      font-size: 22px;
+      line-height: 1;
       cursor: pointer;
-      box-shadow: 0 5px 18px rgba(0, 0, 0, .35);
+      box-shadow: 0 5px 18px rgba(0, 0, 0, 0.35);
+      pointer-events: auto;
     }
- 
-    .photo-hint {
-      position: fixed;
-      left: 50%;
-      bottom: 28px;
-      z-index: 5;
-      transform: translateX(-50%);
-      padding: 9px 15px;
-      border-radius: 999px;
-      background: rgba(3, 10, 20, .48);
-      border: 1px solid rgba(255, 215, 150, .22);
-      color: rgba(255, 245, 223, .88);
-      font-size: 13px;
-      pointer-events: none;
-      backdrop-filter: blur(5px);
+
+    .photo-close:hover {
+      transform: scale(1.08);
     }
- 
-    .heart-message {
-      position: fixed;
-      left: 50%;
-      top: 50%;
-      z-index: 6;
-      width: min(86vw, 720px);
-      transform: translate(-50%, -50%) scale(.8);
-      color: #fff4cf;
-      text-align: center;
-      text-shadow: 0 2px 18px rgba(255, 108, 47, .8);
-      opacity: 0;
-      visibility: hidden;
-      pointer-events: none;
-      transition: opacity 1.2s ease, transform 1.2s cubic-bezier(.2, .8, .2, 1);
-    }
- 
-    .heart-message.show {
-      opacity: 1;
-      visibility: visible;
-      transform: translate(-50%, -50%) scale(1);
-    }
- 
-    .heart-message__line {
-      display: block;
-      font: 700 clamp(20px, 3vw, 34px)/1.35 Georgia, serif;
-    }
- 
-    .heart-message__name {
-      display: block;
-      margin-top: 14px;
-      color: #ffb6c1;
-      font: 700 clamp(28px, 5vw, 54px)/1.1 'Dancing Script', cursive;
-    }
- 
+
+    /* ===== Heart VIP Trigger ===== */
     .heartvip-stem {
       position: fixed;
       left: 50%;
@@ -184,15 +198,16 @@
       width: 4px;
       height: 110px;
       border-radius: 999px;
-      background: linear-gradient(to bottom, rgba(255, 207, 225, .95), rgba(156, 81, 109, .9));
-      box-shadow: 0 0 18px rgba(255, 142, 184, .7);
+      background: linear-gradient(to bottom, rgba(255, 207, 225, 0.95), rgba(156, 81, 109, 0.9));
+      box-shadow: 0 0 18px rgba(255, 142, 184, 0.7);
       opacity: 0;
       visibility: hidden;
       transform: translateX(-50%) scaleY(0);
       transform-origin: top center;
-      transition: opacity .8s ease, transform .8s cubic-bezier(.2, .8, .2, 1), visibility .8s;
+      transition: opacity 0.8s ease, transform 0.8s cubic-bezier(0.2, 0.8, 0.2, 1), visibility 0.8s;
+      pointer-events: none;
     }
- 
+
     .heartvip-stem::before {
       content: "";
       position: absolute;
@@ -202,16 +217,16 @@
       height: 18px;
       transform: translateX(-50%);
       border-radius: 50%;
-      background: rgba(255, 234, 244, .95);
-      box-shadow: 0 0 16px rgba(255, 146, 176, .8);
+      background: rgba(255, 234, 244, 0.95);
+      box-shadow: 0 0 16px rgba(255, 146, 176, 0.8);
     }
- 
+
     .heartvip-stem.show {
       opacity: 1;
       visibility: visible;
       transform: translateX(-50%) scaleY(1);
     }
- 
+
     .heartvip-trigger {
       position: fixed;
       left: 50%;
@@ -219,11 +234,11 @@
       z-index: 8;
       width: 82px;
       height: 82px;
-      border: 1px solid rgba(255, 224, 235, .85);
+      border: 1px solid rgba(255, 224, 235, 0.85);
       border-radius: 50%;
       color: #fff7fb;
       background: radial-gradient(circle at 35% 30%, #ffb6cf, #e84f83 68%, #a91f58);
-      box-shadow: 0 0 24px rgba(255, 104, 157, .9), 0 0 70px rgba(255, 104, 157, .42);
+      box-shadow: 0 0 24px rgba(255, 104, 157, 0.9), 0 0 70px rgba(255, 104, 157, 0.42);
       font-size: 42px;
       line-height: 1;
       font-family: "Segoe UI Emoji", "Apple Color Emoji", "Noto Color Emoji", sans-serif;
@@ -231,717 +246,150 @@
       opacity: 0;
       visibility: hidden;
       pointer-events: none;
-      transform: translate(-50%, -50%) scale(.2);
-      transition: opacity .8s ease, transform .8s cubic-bezier(.2, .8, .2, 1), visibility .8s;
+      transform: translate(-50%, -50%) scale(0.2);
+      transition: opacity 0.8s ease, transform 0.8s cubic-bezier(0.2, 0.8, 0.2, 1), visibility 0.8s;
       animation: heartvip-pulse 1.5s ease-in-out infinite;
     }
- 
+
     .heartvip-trigger.show {
       opacity: 1;
       visibility: visible;
       pointer-events: auto;
       transform: translate(-50%, -50%) scale(1);
     }
- 
+
     .heartvip-hint {
       position: fixed;
       left: 50%;
-      top: calc(50% + 82px);
+      top: calc(50% + 88px);
       z-index: 9;
       transform: translateX(-50%);
       padding: 10px 18px;
       border-radius: 999px;
-      background: rgba(29, 8, 18, .45);
-      border: 1px solid rgba(255, 210, 228, .6);
+      background: rgba(29, 8, 18, 0.5);
+      border: 1px solid rgba(255, 210, 228, 0.55);
       color: #fff4fb;
-      font: 600 15px/1.3 'Segoe UI', sans-serif;
-      letter-spacing: .02em;
-      text-shadow: 0 2px 10px rgba(255, 109, 168, .65);
+      font: 600 15px/1.3 "Segoe UI", system-ui, sans-serif;
+      letter-spacing: 0.02em;
+      text-shadow: 0 2px 10px rgba(255, 109, 168, 0.65);
       opacity: 0;
       visibility: hidden;
       pointer-events: none;
-      transition: opacity .6s ease, visibility .6s ease, transform .6s ease;
+      transition: opacity 0.6s ease, visibility 0.6s ease, transform 0.6s ease;
     }
- 
+
     .heartvip-trigger.show + .heartvip-hint {
       opacity: 1;
       visibility: visible;
-      transform: translateX(-50%) scale(1);
     }
- 
+
     .heartvip-trigger::before {
       content: "";
       position: absolute;
       inset: -18px;
       border-radius: 50%;
-      border: 1px solid rgba(255, 210, 228, 0.75);
+      border: 1px solid rgba(255, 210, 228, 0.7);
       opacity: 0;
       animation: heartvip-ring 2.4s ease-out infinite;
     }
- 
+
     .heartvip-trigger:hover,
     .heartvip-trigger:focus-visible {
       transform: translate(-50%, -50%) scale(1.12);
-      outline: 2px solid rgba(255, 238, 246, .9);
+      outline: 2px solid rgba(255, 238, 246, 0.9);
       outline-offset: 4px;
     }
- 
+
     @keyframes heartvip-pulse {
-      50% { box-shadow: 0 0 34px rgba(255, 104, 157, 1), 0 0 86px rgba(255, 104, 157, .52); }
+      50% {
+        box-shadow: 0 0 34px rgba(255, 104, 157, 1), 0 0 86px rgba(255, 104, 157, 0.52);
+      }
     }
- 
+
     @keyframes heartvip-ring {
-      0% {
-        opacity: 0.9;
-        transform: scale(0.82);
-      }
-      70% {
-        opacity: 0;
-        transform: scale(1.4);
-      }
-      100% {
-        opacity: 0;
-        transform: scale(1.5);
-      }
+      0%   { opacity: 0.85; transform: scale(0.82); }
+      70%  { opacity: 0; transform: scale(1.4); }
+      100% { opacity: 0; transform: scale(1.5); }
+    }
+
+    /* Credit nhỏ */
+    .credit {
+      position: fixed;
+      right: 12px;
+      bottom: 10px;
+      color: #9fb6c9;
+      font-size: 11px;
+      opacity: 0.55;
+      z-index: 5;
+      pointer-events: none;
     }
   </style>
 </head>
- 
 <body>
   <audio id="bgMusic" loop preload="auto">
     <source src="./nhac/nhactrungthu.mp3" type="audio/mpeg">
-    Trình duyệt của bạn không hỗ trợ audio.
   </audio>
- 
+
   <canvas id="c"></canvas>
- 
-  <div class="photo-hint">Nhấn vào các lồng đèn sẽ có bất ngờ</div>
-  <div class="photo-popup" id="photoPopup" aria-hidden="true">
+
+  <div class="ui-layer">
+    <div class="progress-badge" id="progressBadge">Đã mở 0/7</div>
+    <div class="photo-hint" id="photoHint">Nhấn vào các lồng đèn để mở kỷ niệm ✨</div>
+  </div>
+
+  <button class="music-btn" id="musicBtn" type="button" aria-label="Bật/tắt nhạc" title="Bật/tắt nhạc">♪</button>
+
+  <div class="photo-popup" id="photoPopup" aria-hidden="true" role="dialog">
     <div class="photo-card">
       <button class="photo-close" id="photoClose" aria-label="Đóng">×</button>
       <img id="memoryPhoto" src="" alt="Kỷ niệm" />
     </div>
   </div>
+
   <div class="heartvip-stem" id="heartVipStem" aria-hidden="true"></div>
   <button class="heartvip-trigger" id="heartVipTrigger" type="button" aria-label="Mở trái tim yêu thương">❤</button>
   <div class="heartvip-hint" aria-live="polite">Bấm vào trái tim nhé 💗</div>
- 
+
   <script>
+    // ===================== CONFIG =====================
+    const CONFIG = {
+      FOCAL: 1000,
+      Z_MIN: 0.1,
+      Z_MAX: 2.0,
+      NEEDED_CLICKS: 7,
+      FORMATION_DURATION: 4800,   // ms
+      HEART_PARTICLES: window.matchMedia('(max-width: 768px)').matches ? 14 : 22,
+      LANTERN_COUNT: window.matchMedia('(max-width: 768px)').matches ? 70 : 105,
+      GIRL_NAME: 'Em'
+    };
+
+    // ===================== CANVAS SETUP =====================
     const canvas = document.getElementById('c');
-    const ctx = canvas.getContext('2d');
+    const ctx = canvas.getContext('2d', { alpha: false });
     let W = canvas.width = innerWidth;
     let H = canvas.height = innerHeight;
- 
-    window.addEventListener('resize', () => {
-      W = canvas.width = innerWidth;
-      H = canvas.height = innerHeight;
-    });
- 
- 
-    function rand(a, b) { return a + Math.random() * (b - a) }
-    function lerp(a, b, t) { return a + (b - a) * t }
- 
- 
-    const focalLength = 1000;
-    const zMin = 0.1;
-    const zMax = 2.0;
-    const GIRL_NAME = 'Em';
-    let skyPhase = 'rain';
+
+    // ===================== STATE =====================
+    let skyPhase = 'rain';          // rain | slowing | pause | forming | heart
     let motionScale = 1;
     let formationStartedAt = 0;
     let formationTargets = [];
     const openedLanterns = new Set();
+    let currentPhotoIndex = 0;
+    let musicPlayed = false;
+    let isMuted = false;
+
+    // ===================== DOM =====================
+    const photoPopup   = document.getElementById('photoPopup');
+    const memoryPhoto  = document.getElementById('memoryPhoto');
+    const photoClose   = document.getElementById('photoClose');
+    const photoHint    = document.getElementById('photoHint');
+    const progressBadge= document.getElementById('progressBadge');
     const heartVipTrigger = document.getElementById('heartVipTrigger');
     const heartVipStem = document.getElementById('heartVipStem');
-    const heartParticles = [];
- 
-    function revealHeartActivationSequence() {
-      if (heartVipTrigger.classList.contains('show')) return;
-      heartVipStem.classList.remove('show');
-      heartVipTrigger.classList.remove('show');
- 
-      setTimeout(() => {
-        heartVipStem.classList.add('show');
-        setTimeout(() => {
-          heartVipTrigger.classList.add('show');
-        }, 700);
-      }, 600);
-    }
- 
-    function spawnHeartParticles() {
-      const cx = W * 0.5;
-      const cy = H * 0.46;
-      heartParticles.length = 0;
-      for (let i = 0; i < heartParticleCount; i++) {
-        heartParticles.push({
-          x: cx + (Math.random() - 0.5) * 220,
-          y: cy + (Math.random() - 0.5) * 220,
-          r: rand(2, 7),
-          vx: (Math.random() - 0.5) * 1.3,
-          vy: -Math.random() * 1.6 - 0.5,
-          life: 1,
-          color: i % 2 === 0 ? '#ffd6e7' : '#ff95b7'
-        });
-      }
-    }
- 
-    function drawHeartAura() {
-      const cx = W * 0.5;
-      const cy = H * 0.46;
-      const radius = Math.min(W, H) * 0.23;
-      const t = performance.now() * 0.0015;
- 
-      const glow = ctx.createRadialGradient(cx, cy, radius * 0.12, cx, cy, radius * 1.6);
-      glow.addColorStop(0, 'rgba(255, 182, 193, 0.35)');
-      glow.addColorStop(0.4, 'rgba(255, 153, 189, 0.18)');
-      glow.addColorStop(1, 'rgba(255, 153, 189, 0)');
-      ctx.fillStyle = glow;
-      ctx.fillRect(cx - radius * 1.8, cy - radius * 1.8, radius * 3.6, radius * 3.6);
- 
-      ctx.beginPath();
-      ctx.moveTo(cx, cy + radius * 0.6);
-      for (let angle = 0; angle <= Math.PI * 2 + 0.1; angle += 0.08) {
-        const x = 16 * Math.pow(Math.sin(angle), 3);
-        const y = -(13 * Math.cos(angle) - 5 * Math.cos(2 * angle) - 2 * Math.cos(3 * angle) - Math.cos(4 * angle));
-        ctx.lineTo(cx + x * radius * 0.06, cy + y * radius * 0.06 + 25 + Math.sin(t + angle * 3) * 8);
-      }
-      ctx.closePath();
-      ctx.strokeStyle = 'rgba(255, 228, 238, 0.9)';
-      ctx.lineWidth = 2;
-      ctx.shadowColor = 'rgba(255, 120, 170, 0.75)';
-      ctx.shadowBlur = 22;
-      ctx.stroke();
-      ctx.shadowBlur = 0;
- 
-      for (let i = 0; i < heartParticles.length; i++) {
-        const p = heartParticles[i];
-        p.x += p.vx;
-        p.y += p.vy;
-        p.life -= 0.015;
-        p.vy += 0.008;
-        if (p.life <= 0) {
-          p.x = cx + (Math.random() - 0.5) * 200;
-          p.y = cy + (Math.random() - 0.5) * 200;
-          p.life = 1;
-          p.vx = (Math.random() - 0.5) * 1.4;
-          p.vy = -Math.random() * 1.8 - 0.5;
-        }
- 
-        ctx.beginPath();
-        ctx.fillStyle = p.color.replace(')', `, ${Math.max(0.2, p.life)})`).replace('rgb', 'rgba');
-        if (p.color.startsWith('#')) {
-          const hex = p.color.slice(1);
-          const r = parseInt(hex.slice(0, 2), 16);
-          const g = parseInt(hex.slice(2, 4), 16);
-          const b = parseInt(hex.slice(4, 6), 16);
-          ctx.fillStyle = `rgba(${r}, ${g}, ${b}, ${Math.max(0.2, p.life)})`;
-        }
-        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-        ctx.fill();
-      }
-    }
- 
-    function beginHeartFormation() {
-      if (skyPhase !== 'rain') return;
-      skyPhase = 'slowing';
-      motionScale = .16;
-      photoPopup.classList.remove('show');
-      photoPopup.setAttribute('aria-hidden', 'true');
-      if (audio) audio.volume = .35;
- 
-      setTimeout(() => {
-        skyPhase = 'pause';
-        motionScale = 0;
-        setTimeout(() => {
-          formationTargets = buildHeartTargets();
-          lanterns.forEach((lantern) => {
-            lantern.formationStartX = lantern.x;
-            lantern.formationStartY = lantern.y;
-            lantern.formationStartRotation = lantern.rotation;
-          });
-          formationStartedAt = performance.now();
-          skyPhase = 'forming';
-          setTimeout(() => {
-            if (skyPhase === 'forming' || skyPhase === 'heart') {
-              skyPhase = 'heart';
-              spawnHeartParticles();
-              revealHeartActivationSequence();
-            }
-          }, 5000);
-        }, 1000);
-      }, 750);
-    }
-    class Lantern {
-      constructor() {
-        this.reset(true);
-      }
-      reset(top = false) {
-        this.size = rand(38, 46); // lồng đèn lớn hơn, kích thước vẫn khá đồng đều
-        this.x = rand(-0.1 * W, 1.1 * W);
-        this.y = top ? rand(-H * 0.5, -10) : rand(-H * 0.2, -10);
-        this.z = rand(zMin, zMax);
-        this.vx = rand(-0.22, 0.22);
-        this.vy = rand(0.18, 0.26); // rơi nhanh hơn và đồng đều hơn
-        this.vz = rand(-0.01, 0.01);
-        this.phase = rand(0, Math.PI * 2);
-        this.sway = rand(12, 34);
-        this.rotation = rand(-0.08, 0.08);
-        this.color = this.pickColor();
-        this.glow = rand(0.6, 1.2);
-        this.alpha = rand(0.7, 0.95);
-        this.age = 0;
-        this.maxAge = rand(60, 220);
-        this.twinkle = Math.random();
-        this.depth = rand(0.6, 1.4);
-      }
-      pickColor() {
-        const palettes = [
-          ['#ffd59e', '#ffb86b', '#ff7a45'],
-          ['#fff3b0', '#ffd166', '#ffb4a2'],
-          ['#ffe7f1', '#ffb6c1', '#ff7b9c']
-        ];
-        const p = palettes[Math.floor(rand(0, palettes.length))];
-        return p[Math.floor(rand(0, p.length))];
-      }
-      update(dt) {
-        if (skyPhase === 'pause') return;
-        if (skyPhase === 'forming' || skyPhase === 'heart') {
-          const target = formationTargets[this.formationIndex];
-          if (target) {
-            const scale = focalLength / (focalLength + this.z);
-            const targetX = (target.x - W / 2 * (1 - scale)) / scale;
-            const targetY = (target.y - H / 2 * (1 - scale)) / scale;
-            const progress = Math.min(1, (performance.now() - formationStartedAt) / 5000);
-            const eased = 1 - (1 - progress) ** 3;
-            this.x = lerp(this.formationStartX ?? this.x, targetX, eased);
-            this.y = lerp(this.formationStartY ?? this.y, targetY, eased);
-            this.rotation = lerp(this.formationStartRotation ?? this.rotation, 0, eased);
-          }
-          return;
-        }
-        this.age += dt;
-        this.vy += 0.00018 * (this.size / 24); // gia tốc nhẹ và đều hơn
-        this.x += (this.vx + Math.sin(this.age * 0.018 + this.phase) * (this.sway * this.depth * 0.0022)) * motionScale;
-        this.y += this.vy * (1.05 + this.depth * 0.12) * motionScale;
-        this.z += this.vz;
- 
-        if (this.z < zMin) this.z = zMin;
-        if (this.z > zMax) this.z = zMax;
-        this.rotation += Math.sin(this.age * 0.005 + this.phase) * 0.00045;
-        this.alpha = 0.72 + 0.22 * Math.sin(this.age * 0.02 + this.phase * 3) * this.twinkle;
- 
-        if (this.y - this.size * (focalLength / (focalLength + this.z)) > H + 80) {
-          this.reset(false);
-          this.x = rand(-0.1 * W, 1.1 * W);
-          this.y = -rand(10, 200);
-          this.z = rand(zMin, zMax);
-        }
-      }
-      draw(ctx, glowFactor) {
-        const scale = focalLength / (focalLength + this.z);
-        const px = this.x * scale + W / 2 * (1 - scale); // Perspective projection for x
-        const py = this.y * scale + H / 2 * (1 - scale); // Perspective projection for y
-        const scaledSize = this.size * scale;
- 
-        // Lưu vị trí thật trên màn hình để có thể click trúng lồng đèn
-        this.screenX = px;
-        this.screenY = py;
-        this.screenSize = scaledSize;
- 
-        ctx.save();
-        ctx.translate(px, py);
-        ctx.rotate(this.rotation);
-        const gRadius = scaledSize * (2.4 + glowFactor * this.glow);
-        const grd = ctx.createRadialGradient(0, 0, 0, 0, 0, gRadius);
-        grd.addColorStop(0, hexToRgba(this.color, 0.25 * this.alpha));
-        grd.addColorStop(0.35, hexToRgba(this.color, 0.08 * this.alpha));
-        grd.addColorStop(1, 'rgba(0, 0, 0, 0)');
-        ctx.fillStyle = grd;
-        ctx.beginPath();
-        ctx.arc(0, 0, gRadius, 0, Math.PI * 2);
-        ctx.fill();
-        const w = scaledSize * 0.8;
-        const h = scaledSize * 1.05;
-        const bodyAlpha = Math.max(0.58, this.alpha * (1 - (this.z - zMin) / (zMax - zMin)));
-        ctx.beginPath();
-        roundRectPath(ctx, -w / 2, -h / 2, w, h, w * 0.45);
-        ctx.fillStyle = this.color;
-        ctx.globalAlpha = bodyAlpha;
-        ctx.fill();
-        ctx.lineWidth = Math.max(1.5, scaledSize * 0.055);
-        ctx.strokeStyle = 'rgba(55, 24, 15, 0.72)';
-        ctx.stroke();
-        ctx.globalAlpha = 0.18 * this.alpha;
-        for (let i = -2; i <= 2; i++) {
-          ctx.beginPath();
-          const ix = (i / 3) * w * 0.7;
-          ctx.moveTo(ix, -h / 2);
-          ctx.quadraticCurveTo(ix * 1.4, 0, ix, h / 2);
-          ctx.lineWidth = Math.max(1, scaledSize * 0.045);
-          ctx.strokeStyle = '#000000';
-          ctx.stroke();
-        }
-        ctx.globalAlpha = 1;
-        const flameY = h * 0.12;
-        const flameH = scaledSize * 0.28;
-        const flameW = scaledSize * 0.12;
-        const flameGrd = ctx.createRadialGradient(0, flameY, 0, 0, flameY, flameH);
-        flameGrd.addColorStop(0, '#fff9c8');
-        flameGrd.addColorStop(0.4, '#ffd36a');
-        flameGrd.addColorStop(1, 'rgba(255, 100, 50, 0)');
-        ctx.fillStyle = flameGrd;
-        ctx.beginPath();
-        ctx.ellipse(0, flameY, flameW, flameH, 0, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.restore();
-      }
-    }
- 
- 
-    function roundRectPath(ctx, x, y, w, h, r) {
-      ctx.moveTo(x + r, y);
-      ctx.arcTo(x + w, y, x + w, y + h, r);
-      ctx.arcTo(x + w, y + h, x, y + h, r);
-      ctx.arcTo(x, y + h, x, y, r);
-      ctx.arcTo(x, y, x + w, y, r);
-    }
- 
-    function hexToRgba(hex, alpha) {
-      const h = hex.replace('#', '');
-      const bigint = parseInt(h, 16);
-      const r = (bigint >> 16) & 255;
-      const g = (bigint >> 8) & 255;
-      const b = bigint & 255;
-      return `rgba(${r}, ${g}, ${b}, ${alpha})`;
-    }
- 
- 
-    const isMobile = window.matchMedia('(max-width: 768px)').matches;
-    let lanterns = [];
-    let LAST = performance.now();
-    let glowFactor = 0.6;
-    const desiredCount = isMobile ? 90 : 120;
-    const heartParticleCount = isMobile ? 16 : 26;
- 
-    function spawn(n) {
-      lanterns = [];
-      for (let i = 0; i < n; i++) {
-        const lantern = new Lantern();
-        lantern.formationIndex = i;
-        lanterns.push(lantern);
-      }
-    }
-    spawn(desiredCount);
- 
-    // ===== HEART FORMATION =====
-    // Parametric heart curve
-    function heartCurveX(t) { return 16 * Math.pow(Math.sin(t), 3); }
-    function heartCurveY(t) { return -(13 * Math.cos(t) - 5 * Math.cos(2 * t) - 2 * Math.cos(3 * t) - Math.cos(4 * t)); }
- 
-    let heartTargets = [];
- 
-    function buildHeartTargets() {
-      heartTargets = [];
-      const heartScale = Math.min(W, H) * 0.019;
-      const cx = W * 0.5;
-      const cy = H * 0.46;
- 
-      // Create one heart target for every lantern so no lantern is left over.
-      const outlineCount = Math.ceil(lanterns.length * 0.68);
-      for (let i = 0; i < outlineCount; i++) {
-        const t = (i / outlineCount) * Math.PI * 2;
-        heartTargets.push({
-          x: cx + heartCurveX(t) * heartScale,
-          y: cy + heartCurveY(t) * heartScale
-        });
-      }
- 
-      // Fill the heart with the remaining targets.
-      const fillRng = seededRandom(777);
-      while (heartTargets.length < lanterns.length) {
-        const t = fillRng() * Math.PI * 2;
-        const shrink = 0.2 + fillRng() * 0.55;
-        heartTargets.push({
-          x: cx + heartCurveX(t) * heartScale * shrink,
-          y: cy + heartCurveY(t) * heartScale * shrink
-        });
-      }
- 
-      // Assign targets to lanterns
-      for (let i = 0; i < lanterns.length; i++) {
-        const ti = i % heartTargets.length;
-        lanterns[i].heartTX = heartTargets[ti].x;
-        lanterns[i].heartTY = heartTargets[ti].y;
-      }
- 
-      return heartTargets;
-    }
-    buildHeartTargets();
- 
-    // Rebuild on resize
-    window.addEventListener('resize', () => {
-      buildHeartTargets();
-    });
- 
-    // ── Seeded pseudo-random for stable moon features ──
-    function seededRandom(seed) {
-      let s = seed;
-      return function () {
-        s = (s * 16807 + 0) % 2147483647;
-        return (s - 1) / 2147483646;
-      };
-    }
- 
-    // Pre-generate moon crater & maria data once
-    let moonCraterData = null;
-    let moonMariaData = null;
-    let lastMoonRadius = -1;
- 
-    function generateMoonFeatures(scaledR) {
-      const rng = seededRandom(42);
-      // --- Craters ---
-      const craters = [];
-      const numCraters = 18;
-      for (let i = 0; i < numCraters; i++) {
-        const r = scaledR * (0.03 + rng() * 0.14);
-        const angle = rng() * Math.PI * 2;
-        const dist = rng() * (scaledR - r * 1.1);
-        const ox = Math.cos(angle) * dist;
-        const oy = Math.sin(angle) * dist;
-        if (Math.sqrt(ox * ox + oy * oy) + r < scaledR) {
-          craters.push({
-            ox, oy,
-            w: r * (0.85 + rng() * 0.3),
-            h: r * (0.65 + rng() * 0.35),
-            rot: rng() * Math.PI,
-            alpha: 0.08 + rng() * 0.22,
-            rimAlpha: 0.04 + rng() * 0.08
-          });
-        }
-      }
-      // --- Maria (dark patches) ---
-      const maria = [];
-      const mariaSeeds = [
-        { ox: -0.2, oy: -0.15, rx: 0.28, ry: 0.22 },
-        { ox: 0.15, oy: 0.1, rx: 0.22, ry: 0.18 },
-        { ox: -0.05, oy: 0.25, rx: 0.18, ry: 0.14 },
-        { ox: 0.25, oy: -0.2, rx: 0.15, ry: 0.12 },
-        { ox: -0.3, oy: 0.05, rx: 0.12, ry: 0.18 }
-      ];
-      mariaSeeds.forEach(m => {
-        maria.push({
-          ox: m.ox * scaledR,
-          oy: m.oy * scaledR,
-          rx: m.rx * scaledR,
-          ry: m.ry * scaledR,
-          alpha: 0.06 + rng() * 0.06
-        });
-      });
-      return { craters, maria };
-    }
- 
-    function drawMoon(ctx) {
-      const moonX = W * 0.8;
-      const moonY = H * 0.15;
-      const moonRadius = Math.min(W, H) * 0.1;
-      const moonZ = zMax;
-      const scale = focalLength / (focalLength + moonZ);
-      const R = moonRadius * scale;
- 
-      // Regenerate features only when radius changes (resize)
-      if (Math.abs(R - lastMoonRadius) > 0.5) {
-        const features = generateMoonFeatures(R);
-        moonCraterData = features.craters;
-        moonMariaData = features.maria;
-        lastMoonRadius = R;
-      }
- 
-      // Breathing glow animation
-      const now = performance.now();
-      const breathe = 1 + 0.06 * Math.sin(now * 0.0008);
- 
-      ctx.save();
- 
-      // ── Layer 1: Outermost soft haze ──
-      const haze = R * 5 * breathe;
-      const hazeGrd = ctx.createRadialGradient(moonX, moonY, R * 0.3, moonX, moonY, haze);
-      hazeGrd.addColorStop(0, 'rgba(255, 252, 230, 0.10)');
-      hazeGrd.addColorStop(0.3, 'rgba(255, 248, 220, 0.04)');
-      hazeGrd.addColorStop(1, 'rgba(0, 0, 0, 0)');
-      ctx.fillStyle = hazeGrd;
-      ctx.beginPath();
-      ctx.arc(moonX, moonY, haze, 0, Math.PI * 2);
-      ctx.fill();
- 
-      // ── Layer 2: Mid glow ring ──
-      const glowR = R * 3 * breathe;
-      const glowGrd = ctx.createRadialGradient(moonX, moonY, R * 0.5, moonX, moonY, glowR);
-      glowGrd.addColorStop(0, 'rgba(255, 250, 235, 0.45)');
-      glowGrd.addColorStop(0.25, 'rgba(255, 245, 215, 0.20)');
-      glowGrd.addColorStop(0.5, 'rgba(255, 240, 200, 0.08)');
-      glowGrd.addColorStop(1, 'rgba(0, 0, 0, 0)');
-      ctx.fillStyle = glowGrd;
-      ctx.beginPath();
-      ctx.arc(moonX, moonY, glowR, 0, Math.PI * 2);
-      ctx.fill();
- 
-      // ── Layer 3: Inner corona ──
-      const coronaR = R * 1.6 * breathe;
-      const coronaGrd = ctx.createRadialGradient(moonX, moonY, R * 0.8, moonX, moonY, coronaR);
-      coronaGrd.addColorStop(0, 'rgba(255, 253, 240, 0.55)');
-      coronaGrd.addColorStop(0.5, 'rgba(255, 248, 220, 0.15)');
-      coronaGrd.addColorStop(1, 'rgba(0, 0, 0, 0)');
-      ctx.fillStyle = coronaGrd;
-      ctx.beginPath();
-      ctx.arc(moonX, moonY, coronaR, 0, Math.PI * 2);
-      ctx.fill();
- 
-      // ── Moon body: layered gradient for realistic look ──
-      ctx.save();
-      ctx.beginPath();
-      ctx.arc(moonX, moonY, R, 0, Math.PI * 2);
-      ctx.clip();
- 
-      // Base colour
-      const bodyGrd = ctx.createRadialGradient(
-        moonX - R * 0.25, moonY - R * 0.25, R * 0.1,
-        moonX, moonY, R
-      );
-      bodyGrd.addColorStop(0, '#fffef5');
-      bodyGrd.addColorStop(0.4, '#f5f0d8');
-      bodyGrd.addColorStop(0.75, '#e8e0c0');
-      bodyGrd.addColorStop(1, '#d8cfb0');
-      ctx.fillStyle = bodyGrd;
-      ctx.fillRect(moonX - R, moonY - R, R * 2, R * 2);
- 
-      // Warm tint overlay
-      const warmGrd = ctx.createRadialGradient(
-        moonX + R * 0.3, moonY + R * 0.3, 0,
-        moonX, moonY, R
-      );
-      warmGrd.addColorStop(0, 'rgba(255, 220, 160, 0.15)');
-      warmGrd.addColorStop(1, 'rgba(180, 170, 140, 0.10)');
-      ctx.fillStyle = warmGrd;
-      ctx.fillRect(moonX - R, moonY - R, R * 2, R * 2);
- 
-      // ── Maria (dark lowland regions) ──
-      if (moonMariaData) {
-        moonMariaData.forEach(m => {
-          ctx.globalAlpha = m.alpha;
-          const mGrd = ctx.createRadialGradient(
-            moonX + m.ox, moonY + m.oy, 0,
-            moonX + m.ox, moonY + m.oy, Math.max(m.rx, m.ry)
-          );
-          mGrd.addColorStop(0, 'rgba(140, 135, 115, 0.7)');
-          mGrd.addColorStop(0.6, 'rgba(160, 155, 135, 0.3)');
-          mGrd.addColorStop(1, 'rgba(180, 175, 155, 0)');
-          ctx.fillStyle = mGrd;
-          ctx.beginPath();
-          ctx.ellipse(moonX + m.ox, moonY + m.oy, m.rx, m.ry, 0, 0, Math.PI * 2);
-          ctx.fill();
-        });
-        ctx.globalAlpha = 1;
-      }
- 
-      // ── Craters ──
-      if (moonCraterData) {
-        moonCraterData.forEach(c => {
-          const cx = moonX + c.ox;
-          const cy = moonY + c.oy;
- 
-          // Crater shadow (deeper part)
-          ctx.globalAlpha = c.alpha;
-          const cGrd = ctx.createRadialGradient(
-            cx - c.w * 0.15, cy - c.h * 0.15, 0,
-            cx, cy, Math.max(c.w, c.h)
-          );
-          cGrd.addColorStop(0, 'rgba(170, 165, 145, 0.9)');
-          cGrd.addColorStop(0.5, 'rgba(190, 185, 165, 0.5)');
-          cGrd.addColorStop(1, 'rgba(210, 205, 185, 0)');
-          ctx.fillStyle = cGrd;
-          ctx.beginPath();
-          ctx.ellipse(cx, cy, c.w, c.h, c.rot, 0, Math.PI * 2);
-          ctx.fill();
- 
-          // Crater rim (subtle highlight)
-          ctx.globalAlpha = c.rimAlpha;
-          ctx.strokeStyle = 'rgba(255, 252, 240, 0.4)';
-          ctx.lineWidth = Math.max(0.5, c.w * 0.08);
-          ctx.beginPath();
-          ctx.ellipse(cx, cy, c.w * 1.02, c.h * 1.02, c.rot, Math.PI * 0.8, Math.PI * 1.8);
-          ctx.stroke();
-        });
-        ctx.globalAlpha = 1;
-      }
- 
-      // ── Terminator shadow (edge darkening for 3D look) ──
-      const termGrd = ctx.createLinearGradient(
-        moonX - R, moonY, moonX + R, moonY
-      );
-      termGrd.addColorStop(0, 'rgba(0, 0, 0, 0)');
-      termGrd.addColorStop(0.7, 'rgba(0, 0, 0, 0)');
-      termGrd.addColorStop(1, 'rgba(0, 0, 20, 0.18)');
-      ctx.fillStyle = termGrd;
-      ctx.fillRect(moonX - R, moonY - R, R * 2, R * 2);
- 
-      // Edge vignette for spherical feel
-      const edgeGrd = ctx.createRadialGradient(
-        moonX - R * 0.15, moonY - R * 0.15, R * 0.4,
-        moonX, moonY, R
-      );
-      edgeGrd.addColorStop(0, 'rgba(0, 0, 0, 0)');
-      edgeGrd.addColorStop(0.85, 'rgba(0, 0, 0, 0)');
-      edgeGrd.addColorStop(1, 'rgba(0, 0, 20, 0.15)');
-      ctx.fillStyle = edgeGrd;
-      ctx.fillRect(moonX - R, moonY - R, R * 2, R * 2);
- 
-      ctx.restore(); // End clip
- 
-      // ── Specular highlight (top-left shine) ──
-      ctx.globalAlpha = 0.35;
-      const specGrd = ctx.createRadialGradient(
-        moonX - R * 0.3, moonY - R * 0.3, 0,
-        moonX - R * 0.3, moonY - R * 0.3, R * 0.6
-      );
-      specGrd.addColorStop(0, 'rgba(255, 255, 255, 0.6)');
-      specGrd.addColorStop(0.5, 'rgba(255, 255, 255, 0.1)');
-      specGrd.addColorStop(1, 'rgba(255, 255, 255, 0)');
-      ctx.fillStyle = specGrd;
-      ctx.beginPath();
-      ctx.arc(moonX, moonY, R, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.globalAlpha = 1;
- 
-      ctx.restore();
-    }
- 
-    function update() {
-      const now = performance.now();
-      const dt = (now - LAST) * 0.06;
-      LAST = now;
-      ctx.clearRect(0, 0, W, H);
-      drawMoon(ctx);
-      lanterns.sort((a, b) => a.z - b.z); // Sort by z-depth for correct rendering order
-      for (let i = 0; i < lanterns.length; i++) {
-        lanterns[i].update(dt);
-      }
-      for (let i = 0; i < lanterns.length; i++) {
-        lanterns[i].draw(ctx, glowFactor);
-      }
-      if (skyPhase === 'forming' && performance.now() - formationStartedAt >= 5000) {
-        skyPhase = 'heart';
-        spawnHeartParticles();
-        revealHeartActivationSequence();
-      }
-      if (skyPhase === 'heart' || skyPhase === 'forming') {
-        drawHeartAura();
-      }
-      ctx.globalAlpha = 1;
-      requestAnimationFrame(update);
-    }
-    requestAnimationFrame(update);
-    
-    // ===== ẢNH KỶ NIỆM TUẦN TỰ =====
+    const musicBtn     = document.getElementById('musicBtn');
+    const audio        = document.getElementById('bgMusic');
+
     const memoryImages = [
       'anh/anh1.jpg',
       'anh/anh2.jpg',
@@ -950,93 +398,684 @@
       'anh/anh5.jpg',
       'anh/anh6.jpg',
     ];
- 
-    const photoPopup = document.getElementById('photoPopup');
-    const memoryPhoto = document.getElementById('memoryPhoto');
-    const photoClose = document.getElementById('photoClose');
     const fallbackPhoto = 'image/lantern.svg';
-    let currentPhotoIndex = 0; // Theo dõi ảnh hiện tại
- 
+
+    // ===================== UTILS =====================
+    function rand(a, b) { return a + Math.random() * (b - a); }
+    function lerp(a, b, t) { return a + (b - a) * t; }
+    function easeOutCubic(t) { return 1 - Math.pow(1 - t, 3); }
+
+    function hexToRgba(hex, alpha) {
+      const h = hex.replace('#', '');
+      const n = parseInt(h, 16);
+      return `rgba(${(n >> 16) & 255}, ${(n >> 8) & 255}, ${n & 255}, ${alpha})`;
+    }
+
+    function roundRectPath(ctx, x, y, w, h, r) {
+      ctx.moveTo(x + r, y);
+      ctx.arcTo(x + w, y, x + w, y + h, r);
+      ctx.arcTo(x + w, y + h, x, y + h, r);
+      ctx.arcTo(x, y + h, x, y, r);
+      ctx.arcTo(x, y, x + w, y, r);
+    }
+
+    function seededRandom(seed) {
+      let s = seed;
+      return function () {
+        s = (s * 16807) % 2147483647;
+        return (s - 1) / 2147483646;
+      };
+    }
+
+    // ===================== HEART PARTICLES =====================
+    const heartParticles = [];
+
+    function spawnHeartParticles() {
+      const cx = W * 0.5;
+      const cy = H * 0.46;
+      heartParticles.length = 0;
+      for (let i = 0; i < CONFIG.HEART_PARTICLES; i++) {
+        heartParticles.push({
+          x: cx + (Math.random() - 0.5) * 200,
+          y: cy + (Math.random() - 0.5) * 200,
+          r: rand(2, 6.5),
+          vx: (Math.random() - 0.5) * 1.2,
+          vy: -Math.random() * 1.5 - 0.4,
+          life: 1,
+          color: i % 2 === 0 ? '#ffd6e7' : '#ff95b7'
+        });
+      }
+    }
+
+    function drawHeartAura() {
+      const cx = W * 0.5;
+      const cy = H * 0.46;
+      const radius = Math.min(W, H) * 0.22;
+      const t = performance.now() * 0.0014;
+
+      // Soft glow
+      const glow = ctx.createRadialGradient(cx, cy, radius * 0.1, cx, cy, radius * 1.55);
+      glow.addColorStop(0, 'rgba(255, 182, 193, 0.32)');
+      glow.addColorStop(0.45, 'rgba(255, 153, 189, 0.14)');
+      glow.addColorStop(1, 'rgba(255, 153, 189, 0)');
+      ctx.fillStyle = glow;
+      ctx.fillRect(cx - radius * 1.7, cy - radius * 1.7, radius * 3.4, radius * 3.4);
+
+      // Heart outline
+      ctx.beginPath();
+      ctx.moveTo(cx, cy + radius * 0.55);
+      for (let a = 0; a <= Math.PI * 2 + 0.1; a += 0.09) {
+        const x = 16 * Math.pow(Math.sin(a), 3);
+        const y = -(13 * Math.cos(a) - 5 * Math.cos(2 * a) - 2 * Math.cos(3 * a) - Math.cos(4 * a));
+        ctx.lineTo(cx + x * radius * 0.055, cy + y * radius * 0.055 + 22 + Math.sin(t + a * 2.5) * 6);
+      }
+      ctx.closePath();
+      ctx.strokeStyle = 'rgba(255, 228, 238, 0.88)';
+      ctx.lineWidth = 2;
+      ctx.shadowColor = 'rgba(255, 120, 170, 0.7)';
+      ctx.shadowBlur = 18;
+      ctx.stroke();
+      ctx.shadowBlur = 0;
+
+      // Particles
+      for (const p of heartParticles) {
+        p.x += p.vx;
+        p.y += p.vy;
+        p.life -= 0.014;
+        p.vy += 0.007;
+        if (p.life <= 0) {
+          p.x = cx + (Math.random() - 0.5) * 180;
+          p.y = cy + (Math.random() - 0.5) * 180;
+          p.life = 1;
+          p.vx = (Math.random() - 0.5) * 1.3;
+          p.vy = -Math.random() * 1.6 - 0.4;
+        }
+        const hex = p.color.slice(1);
+        const r = parseInt(hex.slice(0, 2), 16);
+        const g = parseInt(hex.slice(2, 4), 16);
+        const b = parseInt(hex.slice(4, 6), 16);
+        ctx.beginPath();
+        ctx.fillStyle = `rgba(${r},${g},${b},${Math.max(0.18, p.life)})`;
+        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
+
+    // ===================== HEART FORMATION =====================
+    function heartCurveX(t) { return 16 * Math.pow(Math.sin(t), 3); }
+    function heartCurveY(t) { return -(13 * Math.cos(t) - 5 * Math.cos(2 * t) - 2 * Math.cos(3 * t) - Math.cos(4 * t)); }
+
+    function buildHeartTargets() {
+      const targets = [];
+      const scale = Math.min(W, H) * 0.0185;
+      const cx = W * 0.5;
+      const cy = H * 0.46;
+      const total = lanterns.length;
+
+      const outlineCount = Math.ceil(total * 0.68);
+      for (let i = 0; i < outlineCount; i++) {
+        const t = (i / outlineCount) * Math.PI * 2;
+        targets.push({
+          x: cx + heartCurveX(t) * scale,
+          y: cy + heartCurveY(t) * scale
+        });
+      }
+
+      const rng = seededRandom(777);
+      while (targets.length < total) {
+        const t = rng() * Math.PI * 2;
+        const shrink = 0.22 + rng() * 0.52;
+        targets.push({
+          x: cx + heartCurveX(t) * scale * shrink,
+          y: cy + heartCurveY(t) * scale * shrink
+        });
+      }
+      return targets;
+    }
+
+    function revealHeartActivationSequence() {
+      if (heartVipTrigger.classList.contains('show')) return;
+      heartVipStem.classList.remove('show');
+      heartVipTrigger.classList.remove('show');
+
+      setTimeout(() => {
+        heartVipStem.classList.add('show');
+        setTimeout(() => heartVipTrigger.classList.add('show'), 650);
+      }, 550);
+    }
+
+    function beginHeartFormation() {
+      if (skyPhase !== 'rain') return;
+      skyPhase = 'slowing';
+      motionScale = 0.14;
+      closePhoto();
+      if (audio && !isMuted) audio.volume = 0.32;
+
+      photoHint.classList.add('hide');
+      progressBadge.classList.remove('show');
+
+      setTimeout(() => {
+        skyPhase = 'pause';
+        motionScale = 0;
+
+        setTimeout(() => {
+          formationTargets = buildHeartTargets();
+          lanterns.forEach((L, i) => {
+            L.formationIndex = i;
+            L.formationStartX = L.x;
+            L.formationStartY = L.y;
+            L.formationStartRotation = L.rotation;
+          });
+          formationStartedAt = performance.now();
+          skyPhase = 'forming';
+
+          setTimeout(() => {
+            if (skyPhase === 'forming' || skyPhase === 'heart') {
+              skyPhase = 'heart';
+              spawnHeartParticles();
+              revealHeartActivationSequence();
+            }
+          }, CONFIG.FORMATION_DURATION);
+        }, 900);
+      }, 700);
+    }
+
+    // ===================== LANTERN CLASS =====================
+    class Lantern {
+      constructor() {
+        this.reset(true);
+      }
+
+      reset(fromTop = false) {
+        this.size = rand(36, 45);
+        this.x = rand(-0.08 * W, 1.08 * W);
+        this.y = fromTop ? rand(-H * 0.45, -8) : rand(-H * 0.18, -8);
+        this.z = rand(CONFIG.Z_MIN, CONFIG.Z_MAX);
+        this.vx = rand(-0.2, 0.2);
+        this.vy = rand(0.17, 0.25);
+        this.vz = rand(-0.008, 0.008);
+        this.phase = rand(0, Math.PI * 2);
+        this.sway = rand(11, 30);
+        this.rotation = rand(-0.07, 0.07);
+        this.color = this.pickColor();
+        this.glow = rand(0.55, 1.15);
+        this.alpha = rand(0.72, 0.94);
+        this.age = 0;
+        this.twinkle = Math.random();
+        this.depth = rand(0.65, 1.35);
+        this.screenX = 0;
+        this.screenY = 0;
+        this.screenSize = 0;
+      }
+
+      pickColor() {
+        const palettes = [
+          ['#ffd59e', '#ffb86b', '#ff7a45'],
+          ['#fff3b0', '#ffd166', '#ffb4a2'],
+          ['#ffe7f1', '#ffb6c1', '#ff7b9c']
+        ];
+        const p = palettes[(Math.random() * 3) | 0];
+        return p[(Math.random() * p.length) | 0];
+      }
+
+      update(dt) {
+        if (skyPhase === 'pause') return;
+
+        if (skyPhase === 'forming' || skyPhase === 'heart') {
+          const target = formationTargets[this.formationIndex];
+          if (target) {
+            const scale = CONFIG.FOCAL / (CONFIG.FOCAL + this.z);
+            const targetX = (target.x - W / 2 * (1 - scale)) / scale;
+            const targetY = (target.y - H / 2 * (1 - scale)) / scale;
+            const progress = Math.min(1, (performance.now() - formationStartedAt) / CONFIG.FORMATION_DURATION);
+            const eased = easeOutCubic(progress);
+            this.x = lerp(this.formationStartX ?? this.x, targetX, eased);
+            this.y = lerp(this.formationStartY ?? this.y, targetY, eased);
+            this.rotation = lerp(this.formationStartRotation ?? this.rotation, 0, eased);
+          }
+          return;
+        }
+
+        this.age += dt;
+        this.vy += 0.00016 * (this.size / 24);
+        this.x += (this.vx + Math.sin(this.age * 0.017 + this.phase) * (this.sway * this.depth * 0.002)) * motionScale;
+        this.y += this.vy * (1.04 + this.depth * 0.11) * motionScale;
+        this.z += this.vz;
+
+        if (this.z < CONFIG.Z_MIN) this.z = CONFIG.Z_MIN;
+        if (this.z > CONFIG.Z_MAX) this.z = CONFIG.Z_MAX;
+
+        this.rotation += Math.sin(this.age * 0.0048 + this.phase) * 0.0004;
+        this.alpha = 0.74 + 0.2 * Math.sin(this.age * 0.019 + this.phase * 2.8) * this.twinkle;
+
+        const scale = CONFIG.FOCAL / (CONFIG.FOCAL + this.z);
+        if (this.y - this.size * scale > H + 70) {
+          this.reset(false);
+          this.x = rand(-0.08 * W, 1.08 * W);
+          this.y = -rand(8, 160);
+        }
+      }
+
+      draw(glowFactor) {
+        const scale = CONFIG.FOCAL / (CONFIG.FOCAL + this.z);
+        const px = this.x * scale + W / 2 * (1 - scale);
+        const py = this.y * scale + H / 2 * (1 - scale);
+        const s = this.size * scale;
+
+        this.screenX = px;
+        this.screenY = py;
+        this.screenSize = s;
+
+        ctx.save();
+        ctx.translate(px, py);
+        ctx.rotate(this.rotation);
+
+        // Glow
+        const gR = s * (2.3 + glowFactor * this.glow);
+        const grd = ctx.createRadialGradient(0, 0, 0, 0, 0, gR);
+        grd.addColorStop(0, hexToRgba(this.color, 0.22 * this.alpha));
+        grd.addColorStop(0.4, hexToRgba(this.color, 0.07 * this.alpha));
+        grd.addColorStop(1, 'rgba(0,0,0,0)');
+        ctx.fillStyle = grd;
+        ctx.beginPath();
+        ctx.arc(0, 0, gR, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Body
+        const w = s * 0.78;
+        const h = s * 1.02;
+        const bodyAlpha = Math.max(0.56, this.alpha * (1 - (this.z - CONFIG.Z_MIN) / (CONFIG.Z_MAX - CONFIG.Z_MIN)));
+        ctx.beginPath();
+        roundRectPath(ctx, -w / 2, -h / 2, w, h, w * 0.42);
+        ctx.fillStyle = this.color;
+        ctx.globalAlpha = bodyAlpha;
+        ctx.fill();
+        ctx.lineWidth = Math.max(1.4, s * 0.05);
+        ctx.strokeStyle = 'rgba(55, 24, 15, 0.7)';
+        ctx.stroke();
+
+        // Ribs
+        ctx.globalAlpha = 0.16 * this.alpha;
+        for (let i = -2; i <= 2; i++) {
+          const ix = (i / 3) * w * 0.68;
+          ctx.beginPath();
+          ctx.moveTo(ix, -h / 2);
+          ctx.quadraticCurveTo(ix * 1.35, 0, ix, h / 2);
+          ctx.lineWidth = Math.max(1, s * 0.04);
+          ctx.strokeStyle = '#000';
+          ctx.stroke();
+        }
+
+        // Flame
+        ctx.globalAlpha = 1;
+        const flameY = h * 0.11;
+        const flameH = s * 0.26;
+        const flameW = s * 0.11;
+        const fGrd = ctx.createRadialGradient(0, flameY, 0, 0, flameY, flameH);
+        fGrd.addColorStop(0, '#fff9c8');
+        fGrd.addColorStop(0.45, '#ffd36a');
+        fGrd.addColorStop(1, 'rgba(255, 90, 40, 0)');
+        ctx.fillStyle = fGrd;
+        ctx.beginPath();
+        ctx.ellipse(0, flameY, flameW, flameH, 0, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.restore();
+      }
+    }
+
+    // ===================== MOON =====================
+    let moonCraterData = null;
+    let moonMariaData = null;
+    let lastMoonRadius = -1;
+
+    function generateMoonFeatures(R) {
+      const rng = seededRandom(42);
+      const craters = [];
+      for (let i = 0; i < 16; i++) {
+        const r = R * (0.03 + rng() * 0.13);
+        const angle = rng() * Math.PI * 2;
+        const dist = rng() * (R - r * 1.05);
+        const ox = Math.cos(angle) * dist;
+        const oy = Math.sin(angle) * dist;
+        if (Math.hypot(ox, oy) + r < R) {
+          craters.push({
+            ox, oy,
+            w: r * (0.85 + rng() * 0.28),
+            h: r * (0.65 + rng() * 0.32),
+            rot: rng() * Math.PI,
+            alpha: 0.08 + rng() * 0.2,
+            rimAlpha: 0.04 + rng() * 0.07
+          });
+        }
+      }
+      const maria = [
+        { ox: -0.2, oy: -0.15, rx: 0.27, ry: 0.21 },
+        { ox: 0.15, oy: 0.1, rx: 0.21, ry: 0.17 },
+        { ox: -0.05, oy: 0.24, rx: 0.17, ry: 0.13 },
+        { ox: 0.24, oy: -0.19, rx: 0.14, ry: 0.11 },
+        { ox: -0.28, oy: 0.05, rx: 0.11, ry: 0.16 }
+      ].map(m => ({
+        ox: m.ox * R, oy: m.oy * R,
+        rx: m.rx * R, ry: m.ry * R,
+        alpha: 0.055 + rng() * 0.055
+      }));
+      return { craters, maria };
+    }
+
+    function drawMoon() {
+      const moonX = W * 0.8;
+      const moonY = H * 0.15;
+      const baseR = Math.min(W, H) * 0.095;
+      const scale = CONFIG.FOCAL / (CONFIG.FOCAL + CONFIG.Z_MAX);
+      const R = baseR * scale;
+
+      if (Math.abs(R - lastMoonRadius) > 0.6) {
+        const f = generateMoonFeatures(R);
+        moonCraterData = f.craters;
+        moonMariaData = f.maria;
+        lastMoonRadius = R;
+      }
+
+      const breathe = 1 + 0.055 * Math.sin(performance.now() * 0.00075);
+      ctx.save();
+
+      // Haze
+      const haze = R * 4.6 * breathe;
+      const hazeG = ctx.createRadialGradient(moonX, moonY, R * 0.25, moonX, moonY, haze);
+      hazeG.addColorStop(0, 'rgba(255,252,230,0.09)');
+      hazeG.addColorStop(0.35, 'rgba(255,248,220,0.035)');
+      hazeG.addColorStop(1, 'rgba(0,0,0,0)');
+      ctx.fillStyle = hazeG;
+      ctx.beginPath();
+      ctx.arc(moonX, moonY, haze, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Glow
+      const glowR = R * 2.8 * breathe;
+      const glowG = ctx.createRadialGradient(moonX, moonY, R * 0.45, moonX, moonY, glowR);
+      glowG.addColorStop(0, 'rgba(255,250,235,0.42)');
+      glowG.addColorStop(0.3, 'rgba(255,245,215,0.16)');
+      glowG.addColorStop(0.6, 'rgba(255,240,200,0.06)');
+      glowG.addColorStop(1, 'rgba(0,0,0,0)');
+      ctx.fillStyle = glowG;
+      ctx.beginPath();
+      ctx.arc(moonX, moonY, glowR, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Corona
+      const coronaR = R * 1.5 * breathe;
+      const coronaG = ctx.createRadialGradient(moonX, moonY, R * 0.75, moonX, moonY, coronaR);
+      coronaG.addColorStop(0, 'rgba(255,253,240,0.5)');
+      coronaG.addColorStop(0.55, 'rgba(255,248,220,0.12)');
+      coronaG.addColorStop(1, 'rgba(0,0,0,0)');
+      ctx.fillStyle = coronaG;
+      ctx.beginPath();
+      ctx.arc(moonX, moonY, coronaR, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Body
+      ctx.save();
+      ctx.beginPath();
+      ctx.arc(moonX, moonY, R, 0, Math.PI * 2);
+      ctx.clip();
+
+      const bodyG = ctx.createRadialGradient(moonX - R * 0.22, moonY - R * 0.22, R * 0.08, moonX, moonY, R);
+      bodyG.addColorStop(0, '#fffef5');
+      bodyG.addColorStop(0.4, '#f5f0d8');
+      bodyG.addColorStop(0.78, '#e8e0c0');
+      bodyG.addColorStop(1, '#d8cfb0');
+      ctx.fillStyle = bodyG;
+      ctx.fillRect(moonX - R, moonY - R, R * 2, R * 2);
+
+      const warmG = ctx.createRadialGradient(moonX + R * 0.28, moonY + R * 0.28, 0, moonX, moonY, R);
+      warmG.addColorStop(0, 'rgba(255,220,160,0.13)');
+      warmG.addColorStop(1, 'rgba(180,170,140,0.08)');
+      ctx.fillStyle = warmG;
+      ctx.fillRect(moonX - R, moonY - R, R * 2, R * 2);
+
+      if (moonMariaData) {
+        for (const m of moonMariaData) {
+          ctx.globalAlpha = m.alpha;
+          const mG = ctx.createRadialGradient(moonX + m.ox, moonY + m.oy, 0, moonX + m.ox, moonY + m.oy, Math.max(m.rx, m.ry));
+          mG.addColorStop(0, 'rgba(140,135,115,0.65)');
+          mG.addColorStop(0.6, 'rgba(160,155,135,0.28)');
+          mG.addColorStop(1, 'rgba(180,175,155,0)');
+          ctx.fillStyle = mG;
+          ctx.beginPath();
+          ctx.ellipse(moonX + m.ox, moonY + m.oy, m.rx, m.ry, 0, 0, Math.PI * 2);
+          ctx.fill();
+        }
+        ctx.globalAlpha = 1;
+      }
+
+      if (moonCraterData) {
+        for (const c of moonCraterData) {
+          const cx = moonX + c.ox;
+          const cy = moonY + c.oy;
+          ctx.globalAlpha = c.alpha;
+          const cG = ctx.createRadialGradient(cx - c.w * 0.12, cy - c.h * 0.12, 0, cx, cy, Math.max(c.w, c.h));
+          cG.addColorStop(0, 'rgba(170,165,145,0.85)');
+          cG.addColorStop(0.5, 'rgba(190,185,165,0.45)');
+          cG.addColorStop(1, 'rgba(210,205,185,0)');
+          ctx.fillStyle = cG;
+          ctx.beginPath();
+          ctx.ellipse(cx, cy, c.w, c.h, c.rot, 0, Math.PI * 2);
+          ctx.fill();
+
+          ctx.globalAlpha = c.rimAlpha;
+          ctx.strokeStyle = 'rgba(255,252,240,0.35)';
+          ctx.lineWidth = Math.max(0.5, c.w * 0.07);
+          ctx.beginPath();
+          ctx.ellipse(cx, cy, c.w * 1.02, c.h * 1.02, c.rot, Math.PI * 0.75, Math.PI * 1.75);
+          ctx.stroke();
+        }
+        ctx.globalAlpha = 1;
+      }
+
+      // Terminator + edge
+      const termG = ctx.createLinearGradient(moonX - R, moonY, moonX + R, moonY);
+      termG.addColorStop(0, 'rgba(0,0,0,0)');
+      termG.addColorStop(0.72, 'rgba(0,0,0,0)');
+      termG.addColorStop(1, 'rgba(0,0,20,0.16)');
+      ctx.fillStyle = termG;
+      ctx.fillRect(moonX - R, moonY - R, R * 2, R * 2);
+
+      const edgeG = ctx.createRadialGradient(moonX - R * 0.12, moonY - R * 0.12, R * 0.38, moonX, moonY, R);
+      edgeG.addColorStop(0, 'rgba(0,0,0,0)');
+      edgeG.addColorStop(0.86, 'rgba(0,0,0,0)');
+      edgeG.addColorStop(1, 'rgba(0,0,20,0.13)');
+      ctx.fillStyle = edgeG;
+      ctx.fillRect(moonX - R, moonY - R, R * 2, R * 2);
+
+      ctx.restore();
+
+      // Specular
+      ctx.globalAlpha = 0.32;
+      const specG = ctx.createRadialGradient(moonX - R * 0.28, moonY - R * 0.28, 0, moonX - R * 0.28, moonY - R * 0.28, R * 0.55);
+      specG.addColorStop(0, 'rgba(255,255,255,0.55)');
+      specG.addColorStop(0.5, 'rgba(255,255,255,0.08)');
+      specG.addColorStop(1, 'rgba(255,255,255,0)');
+      ctx.fillStyle = specG;
+      ctx.beginPath();
+      ctx.arc(moonX, moonY, R, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.globalAlpha = 1;
+
+      ctx.restore();
+    }
+
+    // ===================== LANTERNS =====================
+    let lanterns = [];
+    let LAST = performance.now();
+    let glowFactor = 0.58;
+
+    function spawn(n) {
+      lanterns = [];
+      for (let i = 0; i < n; i++) {
+        const L = new Lantern();
+        L.formationIndex = i;
+        lanterns.push(L);
+      }
+    }
+    spawn(CONFIG.LANTERN_COUNT);
+
+    // ===================== MAIN LOOP =====================
+    function update() {
+      const now = performance.now();
+      const dt = Math.min((now - LAST) * 0.06, 2.5); // clamp dt
+      LAST = now;
+
+      ctx.fillStyle = '#02040a';
+      ctx.fillRect(0, 0, W, H);
+
+      drawMoon();
+
+      // Sort only when needed (depth changes slowly)
+      if (skyPhase === 'rain' || skyPhase === 'slowing') {
+        lanterns.sort((a, b) => a.z - b.z);
+      }
+
+      for (const L of lanterns) L.update(dt);
+      for (const L of lanterns) L.draw(glowFactor);
+
+      if (skyPhase === 'forming' && now - formationStartedAt >= CONFIG.FORMATION_DURATION) {
+        skyPhase = 'heart';
+        spawnHeartParticles();
+        revealHeartActivationSequence();
+      }
+
+      if (skyPhase === 'heart' || skyPhase === 'forming') {
+        drawHeartAura();
+      }
+
+      requestAnimationFrame(update);
+    }
+    requestAnimationFrame(update);
+
+    // ===================== PHOTO =====================
     memoryPhoto.onerror = () => {
-      if (memoryPhoto.getAttribute('data-fallback-applied') === 'true') return;
-      memoryPhoto.setAttribute('data-fallback-applied', 'true');
+      if (memoryPhoto.dataset.fallback === '1') return;
+      memoryPhoto.dataset.fallback = '1';
       memoryPhoto.src = fallbackPhoto;
       memoryPhoto.alt = 'Hình ảnh kỷ niệm';
     };
- 
     memoryPhoto.onload = () => {
-      memoryPhoto.setAttribute('data-fallback-applied', 'false');
+      memoryPhoto.dataset.fallback = '0';
     };
- 
-    function openRandomPhoto() {
+
+    function openNextPhoto() {
       if (!memoryImages.length) return;
-      // Hiển thị ảnh theo thứ tự tuần tự
-      memoryPhoto.setAttribute('data-fallback-applied', 'false');
+      memoryPhoto.dataset.fallback = '0';
       memoryPhoto.src = memoryImages[currentPhotoIndex];
-      // Tăng index cho lần tiếp theo, quay lại 0 khi hết ảnh
       currentPhotoIndex = (currentPhotoIndex + 1) % memoryImages.length;
       photoPopup.classList.add('show');
       photoPopup.setAttribute('aria-hidden', 'false');
     }
- 
+
     function closePhoto() {
       photoPopup.classList.remove('show');
       photoPopup.setAttribute('aria-hidden', 'true');
     }
- 
-    photoClose.addEventListener('click', (e) => {
+
+    photoClose.addEventListener('click', e => {
       e.stopPropagation();
       closePhoto();
     });
-    photoPopup.addEventListener('click', (e) => {
+    photoPopup.addEventListener('click', e => {
       if (e.target === photoPopup) closePhoto();
     });
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape') closePhoto();
+    });
+
+    // ===================== INTERACTION =====================
+    function handlePointer(clientX, clientY) {
+      if (skyPhase !== 'rain') return;
+
+      let hit = null;
+      let best = Infinity;
+      for (const L of lanterns) {
+        if (L.screenX == null) continue;
+        const d = Math.hypot(clientX - L.screenX, clientY - L.screenY);
+        const radius = Math.max(22, L.screenSize * 0.78);
+        if (d <= radius && d < best) {
+          hit = L;
+          best = d;
+        }
+      }
+
+      if (hit && !openedLanterns.has(hit)) {
+        openedLanterns.add(hit);
+        openNextPhoto();
+
+        const count = openedLanterns.size;
+        progressBadge.textContent = `Đã mở ${count}/${CONFIG.NEEDED_CLICKS}`;
+        progressBadge.classList.add('show');
+
+        if (count === 1) {
+          photoHint.textContent = `Còn ${CONFIG.NEEDED_CLICKS - 1} lồng đèn nữa…`;
+        } else if (count < CONFIG.NEEDED_CLICKS) {
+          photoHint.textContent = `Còn ${CONFIG.NEEDED_CLICKS - count} lồng đèn nữa ✨`;
+        }
+
+        if (count >= CONFIG.NEEDED_CLICKS) {
+          beginHeartFormation();
+        }
+      }
+
+      // Music autoplay on first interaction
+      if (!musicPlayed && audio) {
+        audio.play().then(() => {
+          musicPlayed = true;
+          musicBtn.textContent = '♪';
+        }).catch(() => {});
+      }
+    }
+
+    canvas.addEventListener('click', e => handlePointer(e.clientX, e.clientY));
+    canvas.addEventListener('touchend', e => {
+      if (e.changedTouches.length) {
+        const t = e.changedTouches[0];
+        handlePointer(t.clientX, t.clientY);
+      }
+    }, { passive: true });
+
+    // Heart button
     heartVipTrigger.addEventListener('click', () => {
       window.location.href = 'heartvip/index.html';
     });
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape') closePhoto();
-    });
- 
-    canvas.addEventListener('click', (e) => {
-      // Ưu tiên lồng đèn gần con trỏ nhất
-      let hit = null;
-      let bestDistance = Infinity;
-      for (const L of lanterns) {
-        if (L.screenX == null || L.screenY == null) continue;
-        const dx = e.clientX - L.screenX;
-        const dy = e.clientY - L.screenY;
-        const d = Math.hypot(dx, dy);
-        const hitRadius = Math.max(18, L.screenSize * 0.75);
-        if (d <= hitRadius && d < bestDistance) {
-          hit = L;
-          bestDistance = d;
-        }
-      }
-      if (hit && skyPhase === 'rain' && !openedLanterns.has(hit)) {
-        openedLanterns.add(hit);
-        openRandomPhoto();
-        if (openedLanterns.size === 7) beginHeartFormation();
-      }
-    });
- 
- 
-    const audio = document.getElementById('bgMusic');
-    let musicPlayed = false;
-    canvas.addEventListener('click', () => {
+
+    // Music toggle
+    musicBtn.addEventListener('click', () => {
+      if (!audio) return;
       if (!musicPlayed) {
         audio.play().then(() => {
           musicPlayed = true;
-          console.log('Nhạc đã phát!');
-        }).catch(err => {
-          console.error('Lỗi phát nhạc:', err);
-        });
+          isMuted = false;
+          musicBtn.textContent = '♪';
+          musicBtn.classList.remove('muted');
+        }).catch(() => {});
+        return;
       }
+      isMuted = !isMuted;
+      audio.muted = isMuted;
+      musicBtn.textContent = isMuted ? '🔇' : '♪';
+      musicBtn.classList.toggle('muted', isMuted);
     });
- 
-    console.log('3D Lantern rain ready — open this file in a browser. Click vào màn hình để bật nhạc.');
+
+    // ===================== RESIZE =====================
+    let resizeTimer;
+    window.addEventListener('resize', () => {
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(() => {
+        W = canvas.width = innerWidth;
+        H = canvas.height = innerHeight;
+        if (skyPhase === 'heart' || skyPhase === 'forming') {
+          formationTargets = buildHeartTargets();
+        }
+      }, 120);
+    });
   </script>
 </body>
- 
 </html>
- 
